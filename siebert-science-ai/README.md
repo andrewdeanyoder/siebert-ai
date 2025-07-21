@@ -5,13 +5,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -19,6 +13,34 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Dependency Management
+
+This project uses [pnpm](https://pnpm.io/) as its package manager. To install dependencies, run:
+
+```bash
+pnpm install
+```
+
+To add a new dependency:
+
+```bash
+pnpm add <package-name>
+```
+
+To remove a dependency:
+
+```bash
+pnpm remove <package-name>
+```
+
+To run scripts, use:
+
+```bash
+pnpm <script-name>
+# Example:
+pnpm build
+```
 
 ## Learn More
 
