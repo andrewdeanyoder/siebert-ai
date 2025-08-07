@@ -1,11 +1,9 @@
 "use client";
 import { useState } from "react";
-import { useChat } from "ai/react";
 import VercelLinks from "#/components/VercelLinks";
 import Chat from "#/components/Chat";
 
 export default function Home() {
-  const [context, setContext] = useState<string[] | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
