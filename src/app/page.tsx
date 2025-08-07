@@ -1,0 +1,77 @@
+"use client";
+import { useState } from "react";
+import { useChat } from "ai/react";
+import VercelLinks from "#/components/VercelLinks";
+import Chat from "#/components/Chat";
+
+export default function Home() {
+  const [context, setContext] = useState<string[] | null>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input,
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      const data = await response.json();
+      setMessages(prev => [...prev, data]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "Sorry, I encountered an error. Please try again.",
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        {/* Chat functionality integrated here */}
+        <div className="w-full max-w-4xl">
+          <Chat
+            input={input}
+            handleInputChange={handleInputChange}
+            handleMessageSubmit={handleSubmit}
+            messages={messages}
+            isLoading={isLoading}
+          />
+        </div>
+        <VercelLinks />
+      </main>
+    </div>
+  );
+}

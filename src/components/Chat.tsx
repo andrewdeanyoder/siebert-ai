@@ -7,6 +7,7 @@ interface Chat {
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleMessageSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
   messages: Message[];
+  isLoading?: boolean;
 }
 
 const Chat: React.FC<Chat> = ({
@@ -14,10 +15,16 @@ const Chat: React.FC<Chat> = ({
   handleInputChange,
   handleMessageSubmit,
   messages,
+  isLoading = false,
 }) => {
   return (
     <div id="chat" className="...">
       <Messages messages={messages} />
+      {isLoading && (
+        <div className="...">
+          <span>AI is thinking...</span>
+        </div>
+      )}
       <>
         <form onSubmit={handleMessageSubmit} className="...">
           <input
@@ -25,6 +32,7 @@ const Chat: React.FC<Chat> = ({
             className="..."
             value={input}
             onChange={handleInputChange}
+            disabled={isLoading}
           />
 
           <span className="...">Press ⮐ to send</span>
