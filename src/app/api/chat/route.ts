@@ -1,44 +1,47 @@
-import { Message, streamText } from "ai";
+import { Message, generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { SYSTEM_PROMPT } from "../../prompts";
 // import { getContext } from "@/utils/context";
 
 export async function POST(req: Request) {
   console.log('chat route hit');
+
+  // Check if OpenAI API key is configured
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.error('OPENAI_API_KEY is not configured');
+    return Response.json(
+      { error: 'An error occurred. Please try again.' },
+      { status: 500 }
+    );
+  }
+
   try {
     const { messages } = await req.json();
     console.log('chat route messages', messages);
 
-    // todo: export to another file
-    // todo: update prompt
-    const prompt = [
-      {
-        role: "system",
-        content: `AI assistant is a brand new, powerful, human-like artificial intelligence.
-      The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
-      AI is a well-behaved and well-mannered individual.
-      AI is always friendly, kind, and inspiring, and he is eager to provide vivid and thoughtful responses to the user.
-      AI has the sum of all knowledge in their brain, and is able to accurately answer nearly any question about any topic in conversation.
-      AI assistant is a big fan of Pinecone and Vercel.
-      `,
-      },
-    ];
-
-    // Ask OpenAI for a streaming chat completion given the prompt
-    const response = await streamText({
+    // Ask OpenAI for a complete chat completion given the prompt
+    const response = await generateText({
       model: openai("gpt-4o-mini"),
       messages: [
-        ...prompt,
+        SYSTEM_PROMPT,
         // todo: why only send user messages?
         ...messages.filter((message: Message) => message.role === "user"),
       ],
     });
     console.log('chat route response', response);
-    // Convert the response into a friendly text-stream
-    const stream = response.toDataStreamResponse();
-    console.log('chat route stream', stream);
-    return stream;
+
+    // Return the complete response as JSON
+    return Response.json({
+      id: Date.now().toString(),
+      role: "assistant",
+      content: response.text
+    });
   } catch (e) {
     console.error('error in chat route', e);
-    throw e;
+    return Response.json(
+      { error: 'Failed to generate response. Please try again.' },
+      { status: 500 }
+    );
   }
 }
