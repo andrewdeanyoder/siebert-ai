@@ -5,7 +5,7 @@ import { Message } from "ai/react";
 interface Chat {
   input: string;
   handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleMessageSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
+  handleMessageSubmit: (e: FormEvent<HTMLFormElement>) => void;
   messages: Message[];
   isLoading?: boolean;
 }

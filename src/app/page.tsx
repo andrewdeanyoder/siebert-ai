@@ -1,10 +1,11 @@
 "use client";
 import { useState } from "react";
+import { Message } from "ai/react";
 import VercelLinks from "#/components/VercelLinks";
 import Chat from "#/components/Chat";
 
 export default function Home() {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,7 +17,7 @@ export default function Home() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
       content: input,
@@ -45,11 +46,12 @@ export default function Home() {
       setMessages(prev => [...prev, data]);
     } catch (error) {
       console.error("Error sending message:", error);
-      setMessages(prev => [...prev, {
+      const errorMessage: Message = {
         id: Date.now().toString(),
         role: "assistant",
         content: "Sorry, I encountered an error. Please try again.",
-      }]);
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
