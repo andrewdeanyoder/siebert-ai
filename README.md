@@ -35,37 +35,3 @@ This project requires an OpenAI API key to function. Follow these steps to set i
 ## Dependency Management
 
 This project uses [pnpm](https://pnpm.io/) as its package manager. To install dependencies, run:
-
-```bash
-pnpm install
-```
-
-To add a new dependency:
-
-```bash
-pnpm add <package-name>
-```
-
-To remove a dependency:
-
-```bash
-pnpm remove <package-name>
-```
-
-To run scripts, use:
-
-```bash
-pnpm <script-name>
-# Example:
-pnpm build
-```
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
