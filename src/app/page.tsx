@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Message } from "ai/react";
 import Image from "next/image";
 import Chat from "#/components/Chat";
@@ -8,6 +8,17 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showStickyBanner, setShowStickyBanner] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setShowStickyBanner(scrollY > 300); // Show banner after scrolling 300px
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -58,32 +69,49 @@ export default function Home() {
   };
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        {/* Banner */}
-        <div className="flex flex-col items-center w-full mb-8">
-          <Image
-            src="/memory-lab-brain.png"
-            alt="Memory Lab Brain"
-            width={200}
-            height={50}
-            className="w-auto h-auto max-w-full rounded-full"
-            priority
-          />
-          <h1 className="text-3xl font-bold text-white mt-4">A&P Memory Lab Tutor</h1>
+    <>
+      {showStickyBanner && (
+        <div className="fixed top-0 left-0 right-0 h-[60px] bg-black border-b border-white z-50 flex items-center px-6">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/memory-lab-brain.png"
+              alt="Memory Lab Brain"
+              width={40}
+              height={40}
+              className="rounded-full"
+            />
+            <span className="text-white font-semibold text-lg">A&P Memory Lab</span>
+          </div>
         </div>
+      )}
 
-        {/* Chat functionality integrated here */}
-        <div className="w-full max-w-4xl">
-          <Chat
-            input={input}
-            handleInputChange={handleInputChange}
-            handleMessageSubmit={handleSubmit}
-            messages={messages}
-            isLoading={isLoading}
-          />
-        </div>
-      </main>
-    </div>
+      <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+        <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+          {/* Banner */}
+          <div className="flex flex-col items-center w-full mb-8">
+            <Image
+              src="/memory-lab-brain.png"
+              alt="Memory Lab Brain"
+              width={200}
+              height={50}
+              className="w-auto h-auto max-w-full rounded-full"
+              priority
+            />
+            <h1 className="text-3xl font-bold text-white mt-4">A&P Memory Lab Tutor</h1>
+          </div>
+
+          {/* Chat functionality integrated here */}
+          <div className="w-full max-w-4xl">
+            <Chat
+              input={input}
+              handleInputChange={handleInputChange}
+              handleMessageSubmit={handleSubmit}
+              messages={messages}
+              isLoading={isLoading}
+            />
+          </div>
+        </main>
+      </div>
+    </>
   );
 }
