@@ -1,9 +1,18 @@
 import { Message } from "ai";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
 export default function Messages({ messages }: { messages: Message[] }) {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div className="space-y-4 mb-4">
       {messages.map((msg, index) => (
