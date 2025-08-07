@@ -61,15 +61,16 @@ export default function Home() {
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         {/* Banner */}
-        <div className="flex justify-center w-full mb-8">
+        <div className="flex flex-col items-center w-full mb-8">
           <Image
-            src="/memory-lab-banner.png"
-            alt="Memory Lab Banner"
-            width={800}
-            height={200}
-            className="w-auto h-auto max-w-full"
+            src="/memory-lab-brain.png"
+            alt="Memory Lab Brain"
+            width={200}
+            height={50}
+            className="w-auto h-auto max-w-full rounded-full"
             priority
           />
+          <h1 className="text-3xl font-bold text-white mt-4">A&P Memory Lab Tutor</h1>
         </div>
 
         {/* Chat functionality integrated here */}
