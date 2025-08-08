@@ -1,23 +1,65 @@
-import React, { FormEvent, ChangeEvent } from "react";
+"use client"
+import React, { useState } from "react";
 import Messages from "./Messages";
-import { Message } from "ai/react";
+import type { Message } from "ai/react";
 import { MODEL } from "../constants";
 
-interface Chat {
-  input: string;
-  handleInputChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleMessageSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  messages: Message[];
-  isLoading?: boolean;
-}
+const Chat: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-const Chat: React.FC<Chat> = ({
-  input,
-  handleInputChange,
-  handleMessageSubmit,
-  messages,
-  isLoading = false,
-}) => {
+  // todo: move this into the upper scope
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
+  // todo: move this into the upper scope- better readability
+  const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input,
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      const data = await response.json();
+      setMessages(prev => [...prev, data]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "Sorry, I encountered an error. Please try again.",
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   return (
     <div id="chat" className="w-full max-w-4xl mx-auto">
       <Messages messages={messages} />
