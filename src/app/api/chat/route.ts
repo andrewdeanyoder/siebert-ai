@@ -4,8 +4,6 @@ import { SYSTEM_PROMPT } from "../../prompts";
 // import { getContext } from "@/utils/context";
 
 export async function POST(req: Request) {
-  console.log('chat route hit');
-
   // Check if OpenAI API key is configured
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -18,7 +16,6 @@ export async function POST(req: Request) {
 
   try {
     const { messages } = await req.json();
-    console.log('chat route messages', messages);
 
     // Ask OpenAI for a complete chat completion given the prompt
     const response = await generateText({
@@ -29,7 +26,6 @@ export async function POST(req: Request) {
         ...messages.filter((message: Message) => message.role === "user"),
       ],
     });
-    console.log('chat route response', response);
 
     // Return the complete response as JSON
     return Response.json({
