@@ -1,6 +1,7 @@
 import React, { FormEvent, ChangeEvent } from "react";
 import Messages from "./Messages";
 import { Message } from "ai/react";
+import { MODEL } from "../constants";
 
 interface Chat {
   input: string;
@@ -45,6 +46,9 @@ const Chat: React.FC<Chat> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
             </button>
+          </div>
+          <div className="text-center mt-2">
+            <span className="text-white text-sm">Powered by {MODEL}</span>
           </div>
         </div>
       </form>

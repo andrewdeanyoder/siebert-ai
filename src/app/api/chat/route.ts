@@ -1,7 +1,7 @@
-import { Message, generateText } from "ai";
+import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { SYSTEM_PROMPT } from "../../prompts";
-// import { getContext } from "@/utils/context";
+import { MODEL } from "../../../constants";
 
 export async function POST(req: Request) {
   // Check if OpenAI API key is configured
@@ -16,15 +16,13 @@ export async function POST(req: Request) {
 
   try {
     const { messages } = await req.json();
-    console.log('messages', SYSTEM_PROMPT, messages);
 
     // Ask OpenAI for a complete chat completion given the prompt
     const response = await generateText({
-      model: openai("gpt-4o"),
+      model: openai(MODEL),
       messages: [
         SYSTEM_PROMPT,
-        // todo: why only send user messages?
-        ...messages.filter((message: Message) => message.role === "user"),
+        ...messages,
       ],
     });
 
