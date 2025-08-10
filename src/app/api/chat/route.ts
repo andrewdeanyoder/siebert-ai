@@ -16,10 +16,11 @@ export async function POST(req: Request) {
 
   try {
     const { messages } = await req.json();
+    console.log('messages', SYSTEM_PROMPT, messages);
 
     // Ask OpenAI for a complete chat completion given the prompt
     const response = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: openai("gpt-4o"),
       messages: [
         SYSTEM_PROMPT,
         // todo: why only send user messages?
