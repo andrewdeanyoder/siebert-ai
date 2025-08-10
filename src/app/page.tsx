@@ -74,13 +74,12 @@ export default function Home() {
         <div className="fixed top-0 left-0 right-0 h-[60px] bg-black border-b border-white z-50 flex items-center px-6">
           <div className="flex items-center gap-3">
             <Image
-              src="/memory-lab-brain.png"
-              alt="Memory Lab Brain"
+              src="/teacher.jpeg"
+              alt="Teacher"
               width={40}
               height={40}
-              className="rounded-full"
             />
-            <span className="text-white font-semibold text-lg">A&P Memory Lab</span>
+            <span className="text-white font-semibold text-lg">A&P Memory Lab Tutor</span>
           </div>
         </div>
       )}
@@ -90,11 +89,11 @@ export default function Home() {
           {/* Banner */}
           <div className="flex flex-col items-center w-full mb-8">
             <Image
-              src="/memory-lab-brain.png"
-              alt="Memory Lab Brain"
+              src="/teacher.jpeg"
+              alt="Teacher"
               width={200}
               height={50}
-              className="w-auto h-auto max-w-full rounded-full"
+              className="w-auto h-auto max-w-full"
               priority
             />
             <h1 className="text-3xl font-bold text-white mt-4">A&P Memory Lab Tutor</h1>
