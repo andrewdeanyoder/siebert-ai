@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docs": "npx --yes http-server docs/architecture -p 8000 -o view-diagrams.html"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.24",

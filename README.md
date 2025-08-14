@@ -32,6 +32,24 @@ This project requires an OpenAI API key to function. Follow these steps to set i
    - Open `.env.local`
    - Replace `your_actual_api_key_here` with your actual OpenAI API key
 
+## Available Scripts
+
+- `pnpm dev` - Start the development server
+- `pnpm build` - Build the application for production
+- `pnpm start` - Start the production server
+- `pnpm lint` - Run ESLint
+- `pnpm docs` - Start the documentation server to view architecture diagrams
+
+## Architecture Documentation
+
+To view the project's architecture diagrams:
+
+```bash
+pnpm docs
+```
+
+Then open [http://localhost:8000/view-diagrams.html](http://localhost:8000/view-diagrams.html) in your browser.
+
 ## Dependency Management
 
 This project uses [pnpm](https://pnpm.io/) as its package manager. To install dependencies, run:
