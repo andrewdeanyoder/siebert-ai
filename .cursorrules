@@ -1,0 +1,49 @@
+# Cursor Rules for Siebert Science AI
+
+## Project Overview
+This is an AI-powered anatomy and physiology tutoring application built with Next.js, TypeScript, and Tailwind CSS. The AI tutor specializes in evidence-based learning strategies and cognitive neuroscience principles.
+
+## Key Technologies
+- Next.js 15.4.2 with App Router
+- React 19.1.0
+- TypeScript
+- Tailwind CSS v4 for styling
+- AI SDK for OpenAI integration
+- pnpm as package manager
+
+## Architecture Guidelines
+- Always follow clean architecture principles.
+- Keep constants centralized in `src/constants.ts`.
+- Use the App Router pattern with `src/app/` directory structure.
+- Reference `docs/architecture/current-architecture.md` before planning any new work.
+- Update `docs/architecture/current-architecture.md` after performing any work.
+- The system prompt in `prompts.ts` is critical. Do NOT change it unless explicitly instructed.
+
+## Development Workflow
+- IMPORTANT: Always work in small increments. Implement the smallest change needed to complete a task.
+- Reference `docs/instructions.md` before starting a new task.
+- Follow test driven development. Before writing production code, write failing tests first.
+- When writing production code, attempt to make the failing tests pass. Do NOT attempt to modify the test to make it pass.
+- Do NOT commit code for me unless explicitly instructed.
+- Use pnpm for package management (`pnpm install`, `pnpm dev`, etc.)
+
+## Code Style
+- Use TypeScript interfaces for all component props
+- Prefer explicty types instead of `any`
+- Follow React functional component patterns with hooks
+- Use Tailwind CSS classes for styling
+- Maintain consistent error handling patterns
+- Prefer destructuring props in component parameters
+
+## File Organization
+- Keep components in `src/components/`
+- API routes in `src/app/api/`
+- Constants and configuration in `src/constants.ts`
+- System prompts in `src/app/prompts.ts`
+- Global styles in `src/app/globals.css`
+
+## UI/UX Guidelines
+- Maintain the existing chat interface design
+- Keep the responsive design with max-width constraints
+- Preserve any loading states and disabled states
+- Maintain accessibility with proper ARIA labels and keyboard navigation
