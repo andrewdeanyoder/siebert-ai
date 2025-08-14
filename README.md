@@ -52,4 +52,4 @@ Then open [http://localhost:8000/view-diagrams.html](http://localhost:8000/view-
 
 ## Dependency Management
 
-This project uses [pnpm](https://pnpm.io/) as its package manager. To install dependencies, run:
+This project uses [pnpm](https://pnpm.io/) as its package manager.

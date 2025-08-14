@@ -16,7 +16,7 @@ This file lists completed and upcoming units of work.
 12. [x] bug fix- feed all messages to the model so that it doesn't get stuck in a loop
 13. [x] Update the logo
 14. [x] Add architectural diagrams for AI to reference
-15. [ ] Install eslint & prettier with standard rule set for nextjs
+15. [x] Install eslint & prettier with standard rule set for nextjs
 16. [ ] Create test directories for vitest and playwright tests
 17. [ ] Debug errors for why we can't use a better model
 18. [ ] finish installing authentication
