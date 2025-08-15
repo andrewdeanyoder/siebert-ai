@@ -71,7 +71,7 @@ export default function Home() {
   return (
     <>
       {showStickyBanner && (
-        <div className="fixed top-0 left-0 right-0 h-[60px] bg-black border-b border-white z-50 flex items-center px-6">
+        <div data-testid="sticky-banner" className="fixed top-0 left-0 right-0 h-[60px] bg-black border-b border-white z-50 flex items-center px-6">
           <div className="flex items-center gap-3">
             <Image
               src="/teacher.jpeg"
