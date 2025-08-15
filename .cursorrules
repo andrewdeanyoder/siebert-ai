@@ -39,9 +39,17 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - Prefer destructuring props in component parameters
 
 ## Testing Guidelines
-- Follow Test Drive Development practices when writing tests
-- Tests follow spec driven development
-- Tests should follow the arrange-act-assert pattern
+- **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass
+- **Test User Behavior, Not Implementation**: Focus on what users can do/see, not internal functions
+- **Prefer Integration Tests**: Test components and features working together, not isolated units
+- **Minimize Mocks**: Only mock external dependencies (APIs, file system), not internal logic
+- **Use Arrange-Act-Assert Pattern**: Structure tests as setup → action → verification
+- **Test File Organization**:
+  - Unit tests: `tests/unit/ComponentName.test.tsx`
+  - Integration tests: `tests/integration/FeatureName.test.ts`
+  - E2E tests: `tests/e2e/UserWorkflow.spec.ts`
+- **Test Naming**: Use descriptive names like "should display error when API fails" not "test1"
+- **Coverage Focus**: Aim for meaningful coverage of user workflows, not 100% line coverage
 
 ## File Organization
 - Keep components in `src/components/`
