@@ -22,6 +22,7 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 
 ## Development Workflow
 - IMPORTANT: Always work in small increments. Implement the smallest change needed to complete a task.
+- Avoid premature optimizations.
 - Reference `docs/instructions.md` before starting a new task.
 - Follow test driven development. Before writing production code, write failing tests first.
 - When writing production code, attempt to make the failing tests pass. Do NOT attempt to modify the test to make it pass.
@@ -36,6 +37,11 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - Use Tailwind CSS classes for styling
 - Maintain consistent error handling patterns
 - Prefer destructuring props in component parameters
+
+## Testing Guidelines
+- Follow Test Drive Development practices when writing tests
+- Tests follow spec driven development
+- Tests should follow the arrange-act-assert pattern
 
 ## File Organization
 - Keep components in `src/components/`
