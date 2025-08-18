@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '../../utils/supabase/server'
 
+const INVALID_CREDENTIALS_ERROR_CODES = [400, 401, 403];
+
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
@@ -15,10 +17,16 @@ export async function login(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signInWithPassword(data)
+  console.log('login', data)
 
-  if (error) {
-    redirect('/error')
+  const response = await supabase.auth.signInWithPassword(data)
+  console.log('login after supabase', response);
+
+  if (response.error) {
+    if (response.error.status && INVALID_CREDENTIALS_ERROR_CODES.includes(response.error.status)) {
+      redirect('/login?error=Invalid credentials. Please try again.')
+    }
+    redirect('/login?error=An error occurred. Please try again.')
   }
 
   revalidatePath('/', 'layout')
@@ -36,9 +44,10 @@ export async function signup(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  const { error } = await supabase.auth.signUp(data)
+  const response = await supabase.auth.signUp(data)
 
-  if (error) {
+  console.log('signup after supabase', response.data, response.error);
+  if (response.error) {
     redirect('/error')
   }
 

@@ -1,7 +1,13 @@
 import { login, signup } from './actions'
 
 // todo: add A&P memory logo and custom message
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const params = await searchParams
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
       <form className="bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-6">
@@ -33,6 +39,9 @@ export default function LoginPage() {
               required
               className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
             />
+            {params.error && (
+              <p className="text-red-600 text-sm mt-1">{params.error}</p>
+            )}
           </div>
         </div>
 

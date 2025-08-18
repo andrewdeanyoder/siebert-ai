@@ -26,8 +26,10 @@ This file lists completed and upcoming units of work.
     c. [ ] when signup is successful, display a message to check your email
     d. [ ] when login is not successful, display the appropriate error message on the login screen
     e. [ ] after a user has confirmed their emails, they should be able to sign in again with the same password
-    f. [ ] logout button
-    g. [ ] reset password button
-    h. [ ] button to make password visible
-    i. [ ] enforce some sort of minimum password standards
+    f. [ ] validate and sanitize all form inputs.
+    g. [ ] logout button
+    h. [ ] reset password button
+    i. [ ] button to make password visible
+    j. [ ] enforce some sort of minimum password standards
+    k. [ ] delete the error route
 21. [ ] Debug errors for why we can't use a better model
