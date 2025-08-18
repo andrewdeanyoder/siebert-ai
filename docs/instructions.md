@@ -18,6 +18,16 @@ This file lists completed and upcoming units of work.
 14. [x] Add architectural diagrams for AI to reference
 15. [x] Install eslint & prettier with standard rule set for nextjs
 16. [x] Create test directories and scripts for vitest and playwright; install vitest and playwright; create a test plan; create tests for the first user flow
-17. [ ] Debug errors for why we can't use a better model
-18. [ ] finish installing authentication
-19. [ ] update e2e tests to account for authentication
+17. [ ] SKIP - update the existing e2e test to reflect that most routes are now protected. Update them to login
+18. [ ] SKIP- create new e2e tests of the login flow
+19. [ ] debug and make improvements for authentication
+    a. [ ] when signup or login is not successful, actually redirect to the error
+    b. [ ] when signup is not successful, display the appropriate error message
+    c. [ ] when signup is successful, display a message to check your email
+    d. [ ] when login is not successful, display the appropriate error message on the login screen
+    e. [ ] after a user has confirmed their emails, they should be able to sign in again with the same password
+    f. [ ] logout button
+    g. [ ] reset password button
+    h. [ ] button to make password visible
+    i. [ ] enforce some sort of minimum password standards
+21. [ ] Debug errors for why we can't use a better model
