@@ -6,6 +6,10 @@ import { createClient } from '../../utils/supabase/server'
 
 const INVALID_CREDENTIALS_ERROR_CODES = [400, 401, 403];
 
+function handleError() {
+  redirect('/login?error=An error occurred. Please try again.')
+}
+
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
@@ -25,8 +29,9 @@ export async function login(formData: FormData) {
   if (response.error) {
     if (response.error.status && INVALID_CREDENTIALS_ERROR_CODES.includes(response.error.status)) {
       redirect('/login?error=Invalid credentials. Please try again.')
+    } else {
+      handleError(response.error)
     }
-    redirect('/login?error=An error occurred. Please try again.')
   }
 
   revalidatePath('/', 'layout')
@@ -46,11 +51,12 @@ export async function signup(formData: FormData) {
 
   const response = await supabase.auth.signUp(data)
 
-  console.log('signup after supabase', response.data, response.error);
+  console.log('signup after supabase', response);
   if (response.error) {
-    redirect('/error')
+
+    handleError()
   }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect('/login?success=Please check your email to confirm your account.')
 }

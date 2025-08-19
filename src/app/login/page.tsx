@@ -1,10 +1,9 @@
 import { login, signup } from './actions'
 
-// todo: add A&P memory logo and custom message
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; success?: string }>
 }) {
   const params = await searchParams
 
@@ -14,6 +13,11 @@ export default async function LoginPage({
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Welcome to A&P Memory Lab
         </h1>
+                  {params.success && (
+            <div className="bg-green-50 border border-green-200 rounded-md p-4">
+              <p className="text-green-800 text-sm text-center">{params.success}</p>
+            </div>
+          )}
         <div className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">

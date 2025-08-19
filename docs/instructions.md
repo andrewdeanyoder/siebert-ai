@@ -21,15 +21,16 @@ This file lists completed and upcoming units of work.
 17. [ ] SKIP - update the existing e2e test to reflect that most routes are now protected. Update them to login
 18. [ ] SKIP- create new e2e tests of the login flow
 19. [ ] debug and make improvements for authentication
-    a. [ ] when signup or login is not successful, actually redirect to the error
-    b. [ ] when signup is not successful, display the appropriate error message
-    c. [ ] when signup is successful, display a message to check your email
-    d. [ ] when login is not successful, display the appropriate error message on the login screen
-    e. [ ] after a user has confirmed their emails, they should be able to sign in again with the same password
+    a. [x] when signup or login is not successful, actually redirect to the error
+    b. [x] when signup is not successful, display the appropriate error message
+    c. [x] when signup is successful, display a message to check your email
+    e. [x] after a user has confirmed their email, they should be able to sign in again with the same password
     f. [ ] validate and sanitize all form inputs.
     g. [ ] logout button
     h. [ ] reset password button
     i. [ ] button to make password visible
     j. [ ] enforce some sort of minimum password standards
     k. [ ] delete the error route
+    d. [ ] when login is not successful, display more detailed error messages based on the possibilties from Supabase
+    l. [ ] refactor the query params redirect to use cookies or server-side state management instead
 21. [ ] Debug errors for why we can't use a better model
