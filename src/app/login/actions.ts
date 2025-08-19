@@ -21,10 +21,7 @@ export async function login(formData: FormData) {
     password: formData.get('password') as string,
   }
 
-  console.log('login', data)
-
   const response = await supabase.auth.signInWithPassword(data)
-  console.log('login after supabase', response);
 
   if (response.error) {
     if (response.error.status && INVALID_CREDENTIALS_ERROR_CODES.includes(response.error.status)) {
