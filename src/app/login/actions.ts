@@ -30,7 +30,7 @@ export async function login(formData: FormData) {
     if (response.error.status && INVALID_CREDENTIALS_ERROR_CODES.includes(response.error.status)) {
       redirect('/login?error=Invalid credentials. Please try again.')
     } else {
-      handleError(response.error)
+      handleError()
     }
   }
 
