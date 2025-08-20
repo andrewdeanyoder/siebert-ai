@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import LogoutButton from "#/components/LogoutButton";
 
 export default function StickyBanner () {
   const [showStickyBanner, setShowStickyBanner] = useState(false);
@@ -17,7 +18,7 @@ export default function StickyBanner () {
   }, []);
 
   return showStickyBanner ? (
-    <div className="fixed top-0 left-0 right-0 h-[60px] bg-black border-b border-white z-50 flex items-center px-6">
+    <div className="fixed top-0 left-0 right-0 h-[60px] bg-black border-b border-white z-50 flex items-center justify-between px-6">
       <div className="flex items-center gap-3">
         <Image
           src="/memory-lab-brain.png"
@@ -28,6 +29,7 @@ export default function StickyBanner () {
         />
         <span className="text-white font-semibold text-lg">A&P Memory Lab</span>
       </div>
+      <LogoutButton />
     </div>
   ) : null;
 }

@@ -26,7 +26,7 @@ This file lists completed and upcoming units of work.
     c. [x] when signup is successful, display a message to check your email
     e. [x] after a user has confirmed their email, they should be able to sign in again with the same password
     f. [ ] validate and sanitize all form inputs.
-    g. [ ] logout button
+    g. [x] logout button
     h. [ ] reset password button
     i. [ ] button to make password visible
     j. [ ] enforce some sort of minimum password standards

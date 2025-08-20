@@ -21,8 +21,8 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - The system prompt in `prompts.ts` is critical. Do NOT change it unless explicitly instructed.
 
 ## Development Workflow
-- IMPORTANT: Always work in small increments. Implement the smallest change needed to complete a task.
-- Avoid premature optimizations.
+- 🚨 CRITICAL: Always work in small increments. Implement the smallest change needed to complete a task. NO EXCEPTIONS.
+- 🚫 PREOPTIMIZATION FORBIDDEN: Do not add complexity, variants, or "future-proofing" features. Build exactly what is requested, nothing more.
 - Reference `docs/instructions.md` before starting a new task.
 - Follow test driven development. Before writing production code, write failing tests first.
 - When writing production code, attempt to make the failing tests pass. Do NOT attempt to modify the test to make it pass.

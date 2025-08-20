@@ -4,6 +4,7 @@ import Chat from "#/components/Chat";
 import { redirect } from 'next/navigation'
 import { createClient } from '#/utils/supabase/server'
 import StickyBanner from "./components/StickyBanner";
+import LogoutButton from "#/components/LogoutButton";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -16,6 +17,10 @@ export default async function Home() {
     <>
       <StickyBanner/>
       <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+        <div className="absolute top-8 right-8 z-10">
+          <LogoutButton />
+        </div>
+
         <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
           {/* todo: factor out the logo */}
           <div className="flex flex-col items-center w-full mb-8">
