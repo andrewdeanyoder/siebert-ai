@@ -5,7 +5,7 @@ This plan follows the Testing Guidelines: **Test User Behavior, Not Implementati
 
 ## Core User Flows to Test
 
-### 1. Authentication & Initial Page Load
+### 1. Authentication & Initial Page Load - DONE
 **File**: `tests/e2e/page-load.spec.ts`
 
 **User Behaviors to Test**:
