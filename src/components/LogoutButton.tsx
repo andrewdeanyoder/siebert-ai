@@ -11,9 +11,9 @@ export default function LogoutButton() {
     <button
       onClick={handleLogout}
       className="px-4 py-2 bg-black text-white border border-white rounded hover:bg-gray-800 transition-colors"
-      aria-label="Logout"
+      aria-label="Log Out"
     >
-      Logout
+      Log Out
     </button>
   )
 }

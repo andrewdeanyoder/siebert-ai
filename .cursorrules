@@ -50,7 +50,7 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
   - E2E tests: `tests/e2e/UserWorkflow.spec.ts`
 - **Test Naming**: Use descriptive names like "should display error when API fails" not "test1"
 - **Coverage Focus**: Aim for meaningful coverage of user workflows, not 100% line coverage
-- **Use data-testid for selectors**: Prefer semantic elements (button, input, etc.) and aria-role attributes over CSS classes. Fall back to data-testid for complex selectors.
+- **Selectors preference**: Prefer semantic elements (button, input, etc.) and aria-role attributes over CSS classes. Fall back to data-testid for complex selectors.
 
 ## File Organization
 - Keep components in `src/components/`

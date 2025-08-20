@@ -19,7 +19,9 @@ This file lists completed and upcoming units of work.
 15. [x] Install eslint & prettier with standard rule set for nextjs
 16. [x] Create test directories and scripts for vitest and playwright; install vitest and playwright; create a test plan; create tests for the first user flow
 17. [ ] SKIP - update the existing e2e test to reflect that most routes are now protected. Update them to login
-18. [ ] SKIP- create new e2e tests of the login flow
+18. [ ] new e2e tests
+    a. [x] start new tests
+    b. [x] refactor tests
 19. [ ] debug and make improvements for authentication
     a. [x] when signup or login is not successful, actually redirect to the error
     b. [x] when signup is not successful, display the appropriate error message

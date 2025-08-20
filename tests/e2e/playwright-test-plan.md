@@ -5,21 +5,29 @@ This plan follows the Testing Guidelines: **Test User Behavior, Not Implementati
 
 ## Core User Flows to Test
 
-### 1. Initial Page Load & Navigation
+### 1. Authentication & Initial Page Load
 **File**: `tests/e2e/page-load.spec.ts`
 
 **User Behaviors to Test**:
-- Page loads with correct title "A&P Memory Lab Tutor"
+- User is redirected to login page when not authenticated
+- User can log in with valid credentials
+- After successful login, user is redirected to main page
+- Main page loads with correct title "A&P Memory Lab Tutor"
 - Teacher image displays correctly
 - Chat interface is visible and accessible
 - Model information displays correctly
 - Page is responsive on different screen sizes
+- Main page logs out
 
 **Test Cases**:
+- `should redirect to login page when not authenticated`
+- `should allow login with valid test credentials`
+- `should redirect to main page after successful login`
 - `should load the main page with all elements visible`
 - `should display teacher image and title correctly`
 - `should be responsive on mobile and desktop`
 - `should show correct model information`
+- `should logout again`
 
 ### 2. Chat Interface Interaction
 **File**: `tests/e2e/chat-interface.spec.ts`
