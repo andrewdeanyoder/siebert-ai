@@ -26,10 +26,10 @@ This file lists completed and upcoming units of work.
     c. [x] when signup is successful, display a message to check your email
     d. [ ] when login is not successful, display more detailed error messages based on the possibilties from Supabase
     e. [x] after a user has confirmed their email, they should be able to sign in again with the same password
-    f. [ ] validate and sanitize all form inputs.
+    f. [x] validate and sanitize all form inputs.
     g. [x] logout button
     h. [ ] reset password button
-    i. [ ] button to make password visible
+    i. [x] add a button to in the form input to make the password visible. It should toggle on and off with each click.
     j. [ ] enforce some sort of minimum password standards
     k. [ ] delete the error route
     l. [ ] refactor the query params redirect to use cookies or server-side state management instead
