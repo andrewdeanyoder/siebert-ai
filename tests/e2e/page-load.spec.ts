@@ -75,7 +75,7 @@ test.describe('Authentication & Initial Page Load', () => {
     await expect(page.locator(selectors.poweredBySpan)).toContainText('gpt')
   })
 
-  test.only('should logout and redirect to login page', async ({ page }) => {
+  test('should logout and redirect to login page', async ({ page }) => {
     // Arrange - Login first
     await loginUser(page)
 
