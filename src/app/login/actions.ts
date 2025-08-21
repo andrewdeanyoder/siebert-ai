@@ -45,14 +45,14 @@ export async function login(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
-  const rawEmail = formData.get('email') as string | null
+  const rawEmail = formData.get('email')
   const rawPassword = formData.get('password') as string | null
 
-  if (!rawEmail || !isEmail(rawEmail)) {
+  if (!rawEmail || typeof rawEmail !== 'string' || !isEmail(rawEmail)) {
     redirect('/login?error=Please enter a valid email address')
   }
 
-  if (!rawPassword) {
+  if (!rawPassword || typeof rawPassword !== 'string') {
     redirect('/login?error=Please enter a password')
   }
 
