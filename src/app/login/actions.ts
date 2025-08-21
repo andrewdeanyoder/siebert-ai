@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '../../utils/supabase/server'
+import { isEmail, escape } from 'validator'
 
 const INVALID_CREDENTIALS_ERROR_CODES = [400, 401, 403];
 
@@ -13,12 +14,19 @@ function handleError() {
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  // todo: validate all inputs
+  // Get and validate form data
+  const rawEmail = formData.get('email') as string
+  const rawPassword = formData.get('password') as string
+
+  // Validate email
+  if (!rawEmail || !isEmail(rawEmail)) {
+    redirect('/login?error=Please enter a valid email address')
+  }
+
+  // Sanitize inputs
   const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+    email: escape(rawEmail),
+    password: escape(rawPassword),
   }
 
   const response = await supabase.auth.signInWithPassword(data)
@@ -37,13 +45,21 @@ export async function login(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
+  const rawEmail = formData.get('email') as string | null
+  const rawPassword = formData.get('password') as string | null
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  // todo: validate all inputs
+  if (!rawEmail || !isEmail(rawEmail)) {
+    redirect('/login?error=Please enter a valid email address')
+  }
+
+  if (!rawPassword) {
+    redirect('/login?error=Please enter a password')
+  }
+
+  // Sanitize inputs
   const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+    email: escape(rawEmail),
+    password: escape(rawPassword),
   }
 
   const response = await supabase.auth.signUp(data)
