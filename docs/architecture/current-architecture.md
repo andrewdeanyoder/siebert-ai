@@ -93,3 +93,58 @@ sequenceDiagram
     M->>U: Display conversation
 ```
 
+## Authentication Architecture
+
+```mermaid
+graph TB
+    subgraph "Frontend (Next.js App Router)"
+        A[page.tsx - Main Page] --> B[Middleware Check]
+        B --> C[Login Page]
+        C --> D[Login Form]
+        D --> E[Login Actions]
+        A --> F[Logout Button]
+    end
+
+    subgraph "Backend & Auth"
+        E --> G[Supabase Auth]
+        G --> H[User Session]
+        H --> I[Protected Routes]
+        F --> J[Logout Action]
+        J --> G
+    end
+
+    subgraph "Data Flow"
+        K[User Credentials] --> D
+        D --> E
+        E --> G
+        G --> H
+        H --> I
+        I --> A
+    end
+
+    style A fill:#e1f5fe
+    style C fill:#f3e5f5
+    style G fill:#e8f5e8
+    style K fill:#fff3e0
+```
+
+## Login Flow Sequence
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant M as Middleware
+    participant L as Login Page
+    participant S as Supabase
+    participant P as Protected Page
+
+    U->>M: Access protected route
+    M->>M: Check session
+    M->>L: Redirect to login (if no session)
+    U->>L: Enter credentials
+    L->>S: Authenticate user
+    S->>L: Return session
+    L->>P: Redirect to protected page
+    P->>U: Display authenticated content
+```
+
