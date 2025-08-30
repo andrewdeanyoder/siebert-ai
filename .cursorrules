@@ -13,7 +13,8 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - pnpm as package manager
 
 ## Architecture Guidelines
-- Always follow clean architecture principles.
+- **Component Extraction**: When a component becomes longer than 50-60 lines, consider extracting reusable parts into separate components.
+- **Single Responsibility**: Each component should have one clear purpose. If a component handles multiple concerns, break it down.
 - Keep constants centralized in `src/constants.ts`.
 - Use the App Router pattern with `src/app/` directory structure.
 - Reference `docs/architecture/current-architecture.md` before planning any new work.
