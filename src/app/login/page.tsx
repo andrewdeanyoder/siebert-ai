@@ -1,15 +1,15 @@
 'use client'
 
+import { use } from 'react'
 import { login, signup } from './actions'
 import { SuccessMessage, EmailInput, PasswordInput } from '../../components/FormComponents'
 
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; success?: string }> | { error?: string; success?: string }
+  searchParams: Promise<{ error?: string; success?: string }>
 }) {
-  // todo: is this code correct?
-  const params = searchParams instanceof Promise ? { error: undefined, success: undefined } : searchParams
+  const params = use(searchParams)
   // todo: factor out a reusable form component to use in the reset password forms?
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
