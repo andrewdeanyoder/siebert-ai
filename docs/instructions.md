@@ -17,6 +17,20 @@ This file lists completed and upcoming units of work.
 13. [x] Update the logo
 14. [x] Add architectural diagrams for AI to reference
 15. [x] Install eslint & prettier with standard rule set for nextjs
-16. [ ] Create test directories for vitest and playwright tests
-17. [ ] Debug errors for why we can't use a better model
-18. [ ] finish installing authentication
+16. [x] Create test directories and scripts for vitest and playwright; install vitest and playwright; create a test plan; create tests for the first user flow
+17. [x] Add logout buttons (top right and sticky header)
+18. [x] Update e2e tests for the login flow
+19. [ ] Debug and make improvements for authentication
+    a. [x] when signup or login is not successful, actually redirect to the error
+    b. [x] when signup is not successful, display the appropriate error message
+    c. [x] when signup is successful, display a message to check your email
+    d. [ ] when login is not successful, display more detailed error messages based on the possibilties from Supabase
+    e. [x] after a user has confirmed their email, they should be able to sign in again with the same password
+    f. [x] validate and sanitize all form inputs.
+    g. [x] logout button
+    h. [ ] reset password button
+    i. [x] add a button to in the form input to make the password visible. It should toggle on and off with each click.
+    j. [ ] enforce some sort of minimum password standards
+    k. [ ] delete the error route
+    l. [ ] refactor the query params redirect to use cookies or server-side state management instead
+20. [ ] Debug errors for why we can't use a better model

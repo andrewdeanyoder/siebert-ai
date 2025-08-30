@@ -13,7 +13,8 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - pnpm as package manager
 
 ## Architecture Guidelines
-- Always follow clean architecture principles.
+- **Component Extraction**: When a component becomes longer than 50-60 lines, consider extracting reusable parts into separate components.
+- **Single Responsibility**: Each component should have one clear purpose. If a component handles multiple concerns, break it down.
 - Keep constants centralized in `src/constants.ts`.
 - Use the App Router pattern with `src/app/` directory structure.
 - Reference `docs/architecture/current-architecture.md` before planning any new work.
@@ -21,7 +22,8 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - The system prompt in `prompts.ts` is critical. Do NOT change it unless explicitly instructed.
 
 ## Development Workflow
-- IMPORTANT: Always work in small increments. Implement the smallest change needed to complete a task.
+- 🚨 CRITICAL: Always work in small increments. Implement the smallest change needed to complete a task. NO EXCEPTIONS.
+- 🚫 PREOPTIMIZATION FORBIDDEN: Do not add complexity, variants, or "future-proofing" features. Build exactly what is requested, nothing more.
 - Reference `docs/instructions.md` before starting a new task.
 - Follow test driven development. Before writing production code, write failing tests first.
 - When writing production code, attempt to make the failing tests pass. Do NOT attempt to modify the test to make it pass.
@@ -31,11 +33,25 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 
 ## Code Style
 - Use TypeScript interfaces for all component props
-- Prefer explicty types instead of `any`
+- Prefer explict types instead of `any`
 - Follow React functional component patterns with hooks
 - Use Tailwind CSS classes for styling
 - Maintain consistent error handling patterns
 - Prefer destructuring props in component parameters
+
+## Testing Guidelines
+- **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass
+- **Test User Behavior, Not Implementation**: Focus on what users can do/see, not internal functions
+- **Prefer Integration Tests**: Test components and features working together, not isolated units
+- **Minimize Mocks**: Only mock external dependencies (APIs, file system), not internal logic
+- **Use Arrange-Act-Assert Pattern**: Structure tests as setup → action → verification
+- **Test File Organization**:
+  - Unit tests: `tests/unit/ComponentName.test.tsx`
+  - Integration tests: `tests/integration/FeatureName.test.ts`
+  - E2E tests: `tests/e2e/UserWorkflow.spec.ts`
+- **Test Naming**: Use descriptive names like "should display error when API fails" not "test1"
+- **Coverage Focus**: Aim for meaningful coverage of user workflows, not 100% line coverage
+- **Selectors preference**: Prefer semantic elements (button, input, etc.) and aria-role attributes over CSS classes. Fall back to data-testid for complex selectors.
 
 ## File Organization
 - Keep components in `src/components/`
