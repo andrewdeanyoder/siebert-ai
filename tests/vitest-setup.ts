@@ -48,3 +48,8 @@ vi.mock('ai', () => ({
     isLoading: false,
   })),
 }))
+
+// JSDOM doesn't implement scrollIntoView; mock it to no-op to avoid errors in tests
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = vi.fn()
+}
