@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test'
 import { loginUser } from './utils/auth'
 import { selectors } from './utils/selectors'
+import { MODEL } from '../../src/constants'
+import { LAST_UPDATED } from '../../src/app/prompts'
 
 test.describe('Authentication & Initial Page Load', () => {
   test('should redirect to login page when not authenticated', async ({ page }) => {
@@ -70,9 +72,13 @@ test.describe('Authentication & Initial Page Load', () => {
     await loginUser(page)
 
     // Assert - Model information is displayed
-    await expect(page.locator(selectors.poweredBySpan)).toBeVisible()
-    // TODO: Check the actual model name from constants
-    await expect(page.locator(selectors.poweredBySpan)).toContainText('gpt')
+    const modelInfo = page.getByText('Powered by');
+    await expect(modelInfo).toBeVisible()
+    await expect(modelInfo).toContainText(MODEL)
+
+    // Assert - System prompt last updated information is displayed
+    const systemPromptInfo = page.getByText('System Prompt last updated');
+    await expect(systemPromptInfo).toBeVisible();
   })
 
   test('should logout and redirect to login page', async ({ page }) => {

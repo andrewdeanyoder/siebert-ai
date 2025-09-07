@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Messages from "./Messages";
 import type { Message } from "ai/react";
 import { MODEL } from "../constants";
+import { LAST_UPDATED } from "../app/prompts";
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -91,6 +92,9 @@ const Chat: React.FC = () => {
           </div>
           <div className="text-center mt-2">
             <span className="text-white text-sm">Powered by {MODEL}</span>
+            <div className="text-white text-sm mt-1">
+              System Prompt last updated {new Date(LAST_UPDATED).toLocaleDateString()}
+            </div>
           </div>
         </div>
       </form>

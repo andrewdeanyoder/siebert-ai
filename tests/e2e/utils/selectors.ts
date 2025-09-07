@@ -15,4 +15,5 @@ export const selectors = {
   submitButton: 'button[type="submit"]',
   logoutButton: 'button:has-text("Log Out")',
   poweredBySpan: 'span:has-text("Powered by")',
+  systemPromptUpdatedSpan: 'text=System Prompt last updated',
 } as const
