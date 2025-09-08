@@ -1,54 +1,22 @@
 "use client"
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import Messages from "./Messages";
 import type { Message } from "ai/react";
 import { MODEL } from "../lib/constants";
 import { LAST_UPDATED } from "../app/prompts";
 import submitMessages from "../lib/http/submitMessages";
-
-interface ISpeechRecognitionResult {
-  isFinal: boolean;
-  0: { transcript: string };
-}
-
-interface ISpeechRecognitionEvent {
-  resultIndex: number;
-  results: ISpeechRecognitionResult[];
-}
-
-interface ISpeechRecognition {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: ISpeechRecognitionEvent) => void) | null;
-  onend: (() => void) | null;
-  onerror: ((event: unknown) => void) | null;
-  start: () => void;
-  stop: () => void;
-}
-
-const getSpeechRecognitionConstructor = (): SpeechRecognitionConstructor | null => {
-  if (typeof window === "undefined") return null;
-  const w = window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown };
-  return (w.SpeechRecognition || w.webkitSpeechRecognition) as SpeechRecognitionConstructor | null;
-};
-
-const isSpeechSupported = (): boolean => {
-  return getSpeechRecognitionConstructor() != null;
-};
+import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [speechSupported, setSpeechSupported] = useState(false);
 
-  const recognitionRef = useRef<ISpeechRecognition | null>(null);
-
-  useEffect(() => {
-    setSpeechSupported(isSpeechSupported());
-  }, []);
+  const { isRecording, speechSupported, toggleRecording } = useSpeechRecognition({
+    onTranscript: (transcript: string) => {
+      setInput(prev => (prev + (prev ? " " : "") + transcript).trim());
+    }
+  });
 
   // todo: move this into the upper scope
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,58 +42,6 @@ const Chat: React.FC = () => {
     setMessages(prev => [...prev, newMessage]);
   };
 
-  const startRecording = (): void => {
-    const Ctor = getSpeechRecognitionConstructor();
-    if (!Ctor) return;
-
-    const recognition = new Ctor();
-    recognition.continuous = true;
-    recognition.interimResults = false; // append only final results to avoid duplication
-    recognition.lang = "en-US";
-
-    recognition.onresult = (event: ISpeechRecognitionEvent) => {
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (!result) continue;
-        if (result.isFinal) {
-          const transcript = result[0]?.transcript ?? "";
-          if (transcript) {
-            setInput(prev => (prev + (prev ? " " : "") + transcript).trim());
-          }
-        }
-      }
-    };
-
-    recognition.onerror = () => {
-      setIsRecording(false);
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-      recognitionRef.current = null;
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsRecording(true);
-  };
-
-  const stopRecording = (): void => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-    }
-  };
-
-  const handleMicToggle = (): void => {
-    if (!speechSupported) return;
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
-  };
-
-
   return (
     <div id="chat" className="w-full max-w-4xl mx-auto">
       <Messages messages={messages} />
@@ -148,7 +64,7 @@ const Chat: React.FC = () => {
             {/* TODO: move mic button into it's own component */}
             <button
               type="button"
-              onClick={handleMicToggle}
+              onClick={toggleRecording}
               disabled={isLoading || !speechSupported}
               aria-label={isRecording ? "Stop recording" : "Start recording"}
               title={speechSupported ? (isRecording ? "Stop recording" : "Start recording") : "Speech recognition not supported"}
