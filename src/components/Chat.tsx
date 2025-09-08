@@ -13,7 +13,7 @@ const Chat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // todo: move this into the upper scope
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
   };
 
@@ -47,13 +47,23 @@ const Chat: React.FC = () => {
       <form onSubmit={handleMessageSubmit} className="flex flex-col items-center w-full">
         <div className="w-[66.666667vw] relative">
           <div className="bg-gray-100 rounded-xl p-4 border border-gray-200 relative">
-            <input
-              type="text"
-              className="w-full px-4 py-3 pr-28 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
+            <textarea
+              className="w-full px-4 py-3 pr-28 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black resize-none overflow-y-auto"
               value={input}
               onChange={handleInputChange}
               disabled={isLoading}
               placeholder="Type your message..."
+              rows={1}
+              style={{
+                minHeight: '48px',
+                maxHeight: '240px', // ~10 lines at 24px line height
+                height: 'auto',
+              }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.min(target.scrollHeight, 240) + 'px';
+              }}
             />
             <MicrophoneButton
               isLoading={isLoading}
