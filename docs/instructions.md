@@ -31,6 +31,13 @@ This file lists completed and upcoming units of work.
     h. [ ] reset password button
     i. [x] add a button to in the form input to make the password visible. It should toggle on and off with each click.
     j. [ ] enforce some sort of minimum password standards
-    k. [ ] delete the error route
+    k. [x] delete the error route
     l. [ ] refactor the query params redirect to use cookies or server-side state management instead
-20. [ ] Debug errors for why we can't use a better model
+20. [x] Debug errors for why we can't use a better model
+21. [ ] implement basic TTS
+    a. [x] basic implementation through browser api
+    b. [ ] help me understand the implementation in detail
+    c. [ ] make the unit test more thorough
+    d. [ ] make the text area expand as interim results come in
+    e. [ ] have interim results come in more frequently?
+    e. [ ] improve the transscription of anatomy and physiology terms
