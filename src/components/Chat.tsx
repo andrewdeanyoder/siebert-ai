@@ -100,7 +100,7 @@ const Chat: React.FC = () => {
   };
 
   const startRecording = (): void => {
-    const Ctor = getSpeechRecognitionCtor();
+    const Ctor = getSpeechRecognitionConstructor();
     if (!Ctor) return;
 
     const recognition = new Ctor();
