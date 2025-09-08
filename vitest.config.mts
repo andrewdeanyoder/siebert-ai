@@ -8,8 +8,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/vitest-setup.ts'],
     globals: true,
-    include: ['tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+    include: [
+      'tests/{unit,integration}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+    ],
+    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'tests/e2e/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -41,3 +43,5 @@ export default defineConfig({
     target: 'node18',
   },
 })
+
+

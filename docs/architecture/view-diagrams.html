@@ -85,7 +85,7 @@
 
         async function loadAndRenderMarkdown() {
             try {
-                const response = await fetch('current-architecture.md');
+                const response = await fetch(`current-architecture.md?t=${Date.now()}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

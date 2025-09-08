@@ -2,8 +2,10 @@
 import React, { useState } from "react";
 import Messages from "./Messages";
 import type { Message } from "ai/react";
-import { MODEL } from "../constants";
+import { MODEL } from "../lib/constants";
 import { LAST_UPDATED } from "../app/prompts";
+import submitMessages from "../lib/http/submitMessages";
+import MicrophoneButton from "./MicrophoneButton";
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -11,11 +13,10 @@ const Chat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // todo: move this into the upper scope
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
   };
 
-  // todo: move this into the upper scope- better readability
   const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -30,36 +31,10 @@ const Chat: React.FC = () => {
     setInput("");
     setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get response");
-      }
-
-      const data = await response.json();
-      setMessages(prev => [...prev, data]);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      const errorMessage: Message = {
-        id: Date.now().toString(),
-        role: "assistant",
-        content: "Sorry, I encountered an error. Please try again.",
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+    // todo: move this into a http helper that returns parsed data or an error message
+    const newMessage = await submitMessages(messages, userMessage, setMessages, setIsLoading);
+    setMessages(prev => [...prev, newMessage]);
   };
-
 
   return (
     <div id="chat" className="w-full max-w-4xl mx-auto">
@@ -72,13 +47,29 @@ const Chat: React.FC = () => {
       <form onSubmit={handleMessageSubmit} className="flex flex-col items-center w-full">
         <div className="w-[66.666667vw] relative">
           <div className="bg-gray-100 rounded-xl p-4 border border-gray-200 relative">
-            <input
-              type="text"
-              className="w-full px-4 py-3 pr-16 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
+            <textarea
+              className="w-full px-4 py-3 pr-28 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black resize-none overflow-y-auto"
               value={input}
               onChange={handleInputChange}
               disabled={isLoading}
               placeholder="Type your message..."
+              rows={1}
+              style={{
+                minHeight: '48px',
+                maxHeight: '240px', // ~10 lines at 24px line height
+                height: 'auto',
+              }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.min(target.scrollHeight, 240) + 'px';
+              }}
+            />
+            <MicrophoneButton
+              isLoading={isLoading}
+              onTranscript={(transcript: string) => {
+                setInput(prev => (prev + (prev ? " " : "") + transcript).trim());
+              }}
             />
             <button
               type="submit"
@@ -103,3 +94,5 @@ const Chat: React.FC = () => {
 };
 
 export default Chat;
+
+

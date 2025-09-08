@@ -40,7 +40,7 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - Prefer destructuring props in component parameters
 
 ## Testing Guidelines
-- **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass
+- **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass; Important: if the tests do not run, do not continue with development!
 - **Test User Behavior, Not Implementation**: Focus on what users can do/see, not internal functions
 - **Prefer Integration Tests**: Test components and features working together, not isolated units
 - **Minimize Mocks**: Only mock external dependencies (APIs, file system), not internal logic

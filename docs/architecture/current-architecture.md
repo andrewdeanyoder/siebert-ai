@@ -7,35 +7,43 @@ graph TB
     subgraph "Frontend (Next.js App Router)"
         A[page.tsx - Main Page] --> B[Chat Component]
         B --> C[Messages Component]
-        A --> D[Layout.tsx]
-        D --> E[globals.css]
-        D --> F[Analytics]
+        B --> D[MicrophoneButton Component]
+        D --> E[useSpeechRecognition Hook]
+        E --> F[Web Speech API]
+        B --> G[submitMessages.ts]
+        A --> H[Layout.tsx]
+        H --> I[globals.css]
+        H --> J[Analytics]
     end
 
     subgraph "Backend API"
-        G[api/chat/route.ts] --> H[OpenAI API]
-        G --> I[prompts.ts - System Prompt]
-        G --> J[constants.ts]
+        K[api/chat/route.ts] --> L[OpenAI API]
+        K --> M[prompts.ts - System Prompt]
+        K --> N[constants.ts]
     end
 
     subgraph "External Services"
-        H --> K[GPT-4o-mini Model]
-        F --> L[Vercel Analytics]
+        L --> O[OpenAI Models]
+        F --> P[Browser Speech Recognition]
+        J --> Q[Vercel Analytics]
     end
 
     subgraph "Data Flow"
-        M[User Input] --> A
-        A --> G
+        R[User Input - Text/Speech] --> B
+        B --> G
         G --> K
-        K --> G
-        G --> A
-        A --> C
+        K --> O
+        O --> K
+        K --> B
+        B --> C
     end
 
     style A fill:#e1f5fe
-    style G fill:#f3e5f5
-    style K fill:#e8f5e8
-    style M fill:#fff3e0
+    style B fill:#f3e5f5
+    style K fill:#fff3e0
+    style O fill:#e8f5e8
+    style R fill:#fff3e0
+    style F fill:#ffebee
 ```
 
 ## Component Architecture
@@ -46,26 +54,36 @@ graph LR
         A[RootLayout] --> B[page.tsx]
         B --> C[Chat.tsx]
         C --> D[Messages.tsx]
-        C --> E[VercelLinks.tsx]
+        C --> E[MicrophoneButton.tsx]
+        E --> F[useSpeechRecognition Hook]
     end
 
     subgraph "State Management"
-        F[useState - messages] --> B
-        G[useState - input] --> B
-        H[useState - isLoading] --> B
-        I[useState - showStickyBanner] --> B
+        G[useState - messages] --> C
+        H[useState - input] --> C
+        I[useState - isLoading] --> C
+        J[useState - isRecording] --> F
+        K[useState - speechSupported] --> F
     end
 
     subgraph "API Layer"
-        J[fetch /api/chat] --> K[route.ts]
-        K --> L[generateText]
-        L --> M[OpenAI]
+        L[submitMessages.ts] --> M[route.ts]
+        M --> N[generateText]
+        N --> O[OpenAI Models]
+    end
+
+    subgraph "Speech Recognition"
+        F --> P[Web Speech API]
+        P --> Q[Speech Recognition Events]
+        Q --> R[Transcript Callback]
+        R --> C
     end
 
     style A fill:#e3f2fd
     style B fill:#e1f5fe
     style C fill:#f3e5f5
-    style K fill:#fff3e0
+    style M fill:#fff3e0
+    style P fill:#ffebee
 ```
 
 ## Data Flow Architecture
@@ -75,10 +93,13 @@ sequenceDiagram
     participant U as User
     participant P as page.tsx
     participant C as Chat.tsx
+    participant MB as MicrophoneButton
+    participant SR as Speech Recognition
     participant M as Messages.tsx
     participant A as API Route
-    participant O as OpenAI
+    participant O as OpenAI Models
 
+    Note over U,O: Text Input Flow
     U->>P: Type message
     P->>C: handleInputChange
     U->>P: Submit form
@@ -91,6 +112,57 @@ sequenceDiagram
     P->>P: Add AI message to state
     P->>M: Render messages
     M->>U: Display conversation
+
+    Note over U,O: Speech Input Flow
+    U->>MB: Click microphone
+    MB->>SR: Start recording
+    SR->>SR: Process speech
+    SR->>MB: onTranscript callback
+    MB->>C: Update input with transcript
+    C->>P: Text appears in input
+    U->>MB: Click microphone (stop)
+    MB->>SR: Stop recording
+    Note over U,O: Continue with text flow above
+```
+
+## Speech Recognition Architecture
+
+```mermaid
+graph TB
+    subgraph "Speech Recognition Flow"
+        A[User Clicks Microphone] --> B[MicrophoneButton Component]
+        B --> C[useSpeechRecognition Hook]
+        C --> D[Check Browser Support]
+        D --> E[Create SpeechRecognition Instance]
+        E --> F[Configure Recognition Settings]
+        F --> G[Start Recording]
+        G --> H[Web Speech API]
+        H --> I[Process Audio]
+        I --> J[Generate Transcript]
+        J --> K[onTranscript Callback]
+        K --> L[Update Input Field]
+        L --> M[User Sees Text]
+        M --> N[User Clicks Stop]
+        N --> O[Stop Recording]
+    end
+
+    subgraph "Component Structure"
+        P[Chat.tsx] --> Q[MicrophoneButton.tsx]
+        Q --> R[useSpeechRecognition.ts]
+        R --> S[Web Speech API]
+    end
+
+    subgraph "State Management"
+        T[isRecording] --> R
+        U[speechSupported] --> R
+        V[toggleRecording] --> R
+        W[onTranscript] --> P
+    end
+
+    style A fill:#fff3e0
+    style H fill:#ffebee
+    style L fill:#e8f5e8
+    style R fill:#e3f2fd
 ```
 
 ## Authentication Architecture
@@ -147,4 +219,3 @@ sequenceDiagram
     L->>P: Redirect to protected page
     P->>U: Display authenticated content
 ```
-
