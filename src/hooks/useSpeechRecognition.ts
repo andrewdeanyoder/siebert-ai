@@ -33,11 +33,7 @@ const isSpeechSupported = (): boolean => {
   return getSpeechRecognitionConstructor() != null;
 };
 
-interface UseSpeechRecognitionProps {
-  onTranscript: (transcript: string) => void;
-}
-
-export const useSpeechRecognition = ({ onTranscript }: UseSpeechRecognitionProps) => {
+export const useSpeechRecognition = (onTranscript: (transcript: string) => void) => {
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
