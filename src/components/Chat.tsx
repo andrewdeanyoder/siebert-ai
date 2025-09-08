@@ -2,8 +2,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import Messages from "./Messages";
 import type { Message } from "ai/react";
-import { MODEL } from "../constants";
+import { MODEL } from "../lib/constants";
 import { LAST_UPDATED } from "../app/prompts";
+import submitMessages from "../lib/http/submitMessages";
 
 interface ISpeechRecognitionResult {
   isFinal: boolean;
@@ -54,7 +55,6 @@ const Chat: React.FC = () => {
     setInput(e.target.value);
   };
 
-  // todo: move this into the upper scope- better readability
   const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -69,34 +69,9 @@ const Chat: React.FC = () => {
     setInput("");
     setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get response");
-      }
-
-      const data = await response.json();
-      setMessages(prev => [...prev, data]);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      const errorMessage: Message = {
-        id: Date.now().toString(),
-        role: "assistant",
-        content: "Sorry, I encountered an error. Please try again.",
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+    // todo: move this into a http helper that returns parsed data or an error message
+    const newMessage = await submitMessages(messages, userMessage, setMessages, setIsLoading);
+    setMessages(prev => [...prev, newMessage]);
   };
 
   const startRecording = (): void => {
@@ -170,6 +145,7 @@ const Chat: React.FC = () => {
               disabled={isLoading}
               placeholder="Type your message..."
             />
+            {/* TODO: move mic button into it's own component */}
             <button
               type="button"
               onClick={handleMicToggle}
@@ -208,3 +184,5 @@ const Chat: React.FC = () => {
 };
 
 export default Chat;
+
+

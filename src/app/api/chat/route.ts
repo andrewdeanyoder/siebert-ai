@@ -1,7 +1,7 @@
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { SYSTEM_PROMPT } from "../../prompts";
-import { MODEL } from "../../../constants";
+import { MODEL } from "../../../lib/constants";
 
 export async function POST(req: Request) {
   // Check if OpenAI API key is configured
