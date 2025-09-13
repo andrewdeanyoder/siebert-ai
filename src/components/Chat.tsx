@@ -18,6 +18,7 @@ const Chat: React.FC = () => {
   };
 
   const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // TODO: can we get rid of the form, if we're not using the standard form submit actions?
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -34,6 +35,17 @@ const Chat: React.FC = () => {
     // todo: move this into a http helper that returns parsed data or an error message
     const newMessage = await submitMessages(messages, userMessage, setMessages, setIsLoading);
     setMessages(prev => [...prev, newMessage]);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const form = e.currentTarget.closest('form');
+      if (form) {
+        form.requestSubmit();
+      }
+      e.currentTarget.style.height = 'auto';
+    }
   };
 
   return (
@@ -61,9 +73,9 @@ const Chat: React.FC = () => {
               }}
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
-                target.style.height = 'auto';
                 target.style.height = Math.min(target.scrollHeight, 240) + 'px';
               }}
+              onKeyDown={handleKeyDown}
             />
             <MicrophoneButton
               isLoading={isLoading}
