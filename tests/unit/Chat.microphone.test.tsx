@@ -85,7 +85,7 @@ describe('Chat microphone', () => {
     fireEvent.click(dropdown)
 
     // Should show both options
-    const browserOption = screen.getByRole('option', { name: /browser voice recognition/i })
+    const browserOption = screen.getByRole('option', { name: /browser/i })
     const voskOption = screen.getByRole('option', { name: /vosk \(untrained\)/i })
 
     expect(browserOption).toBeInTheDocument()

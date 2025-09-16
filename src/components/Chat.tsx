@@ -82,14 +82,15 @@ const Chat: React.FC = () => {
               </svg>
             </button>
           </div>
-          <div className="mt-3 flex justify-center">
+          <div className="mt-3 flex justify-center items-center gap-2">
+            <span className="text-white text-sm">Voice Recognition:</span>
             <select
               value={ttsMethod}
               onChange={(e) => setTtsMethod(e.target.value as 'browser' | 'vosk')}
               className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               aria-label="TTS Method"
             >
-              <option value="browser">Browser Voice Recognition</option>
+              <option value="browser">Browser</option>
               <option value="vosk">Vosk (Untrained)</option>
             </select>
           </div>

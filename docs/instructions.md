@@ -39,7 +39,7 @@ This file lists completed and upcoming units of work.
     b. [x] add a small dropdown menu component inside the chat component, underneath the input field that allows the user to select TTS method - either Vosk (untrained) or Browser VoiceRecognition; when the user selects Vosk, nothing should happen for now.
     c. [ ] create a new hook for  When the user selects Vosk menu, use Vosk voice recognition hook to listen and transcribe to the text area
     d. [ ] make the text area expand as interim results come in
-22. [ ] productionize chosen TTS metho
+22. [ ] productionize chosen TTS method
     b. [ ] help me understand all implementations in detail
     c. [ ] discard code and write failing unit tests
     e. [ ] have interim results come in more frequently?
