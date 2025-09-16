@@ -87,7 +87,7 @@ const Chat: React.FC = () => {
             <select
               value={ttsMethod}
               onChange={(e) => setTtsMethod(e.target.value as 'browser' | 'vosk')}
-              className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-2 py-1 bg-white border border-gray-300 rounded text-sm text-black focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
               aria-label="TTS Method"
             >
               <option value="browser">Browser</option>
