@@ -11,6 +11,7 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [ttsMethod, setTtsMethod] = useState<'browser' | 'vosk'>('browser');
 
   // todo: move this into the upper scope
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -80,6 +81,17 @@ const Chat: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
               </svg>
             </button>
+          </div>
+          <div className="mt-3 flex justify-center">
+            <select
+              value={ttsMethod}
+              onChange={(e) => setTtsMethod(e.target.value as 'browser' | 'vosk')}
+              className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              aria-label="TTS Method"
+            >
+              <option value="browser">Browser Voice Recognition</option>
+              <option value="vosk">Vosk (Untrained)</option>
+            </select>
           </div>
           <div className="text-center mt-2">
             <span className="text-white text-sm">Powered by {MODEL}</span>

@@ -36,7 +36,7 @@ This file lists completed and upcoming units of work.
 20. [x] Debug errors for why we can't use a better model
 21. [ ] spike basic TTS
     a. [x] basic implementation through browser api
-    b. [ ] add a small dropdown menu component inside the chat component, underneath the input field that allows the user to select TTS method - either Vosk (untrained) or Browser VoiceRecognition; when the user selects Vosk, nothing should happen for now.
+    b. [x] add a small dropdown menu component inside the chat component, underneath the input field that allows the user to select TTS method - either Vosk (untrained) or Browser VoiceRecognition; when the user selects Vosk, nothing should happen for now.
     c. [ ] create a new hook for  When the user selects Vosk menu, use Vosk voice recognition hook to listen and transcribe to the text area
     d. [ ] make the text area expand as interim results come in
 22. [ ] productionize chosen TTS metho
