@@ -34,10 +34,17 @@ This file lists completed and upcoming units of work.
     k. [x] delete the error route
     l. [ ] refactor the query params redirect to use cookies or server-side state management instead
 20. [x] Debug errors for why we can't use a better model
-21. [ ] implement basic TTS
+21. [ ] spike basic TTS
     a. [x] basic implementation through browser api
-    b. [ ] help me understand the implementation in detail
-    c. [ ] make the unit test more thorough
+    b. [ ] add a small dropdown menu component inside the chat component, underneath the input field that allows the user to select TTS method - either Vosk (untrained) or Browser VoiceRecognition; when the user selects Vosk, nothing should happen for now.
+    c. [ ] create a new hook for  When the user selects Vosk menu, use Vosk voice recognition hook to listen and transcribe to the text area
     d. [ ] make the text area expand as interim results come in
+22. [ ] productionize chosen TTS metho
+    b. [ ] help me understand all implementations in detail
+    c. [ ] discard code and write failing unit tests
     e. [ ] have interim results come in more frequently?
-    e. [ ] improve the transscription of anatomy and physiology terms
+22. [ ] Update e2e tests to cover chat functionality
+    a. [ ] Actually type messages into the input field
+    b. [ ] Submit messages to test the chat functionality
+    c. [ ] Verify message sending/receiving
+    f. [ ] Test error states and loading states
