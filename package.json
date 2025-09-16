@@ -43,7 +43,7 @@
     "@vitejs/plugin-react": "5.0.2",
     "@vitest/ui": "3.2.4",
     "dotenv": "17.2.1",
-    "eslint": "9.17.0",
+    "eslint": "9.35.0",
     "eslint-config-next": "15.4.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
@@ -51,7 +51,7 @@
     "playwright": "1.54.2",
     "prettier": "3.6.2",
     "tailwindcss": "4.1.13",
-    "typescript": "5.7.2",
+    "typescript": "5.9.2",
     "vitest": "3.2.4"
   },
   "packageManager": "pnpm@10.12.3+sha512.467df2c586056165580ad6dfb54ceaad94c5a30f80893ebdec5a44c5aa73c205ae4a5bb9d5ed6bb84ea7c249ece786642bbb49d06a307df218d03da41c317417"
