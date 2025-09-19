@@ -71,6 +71,7 @@ const Chat: React.FC = () => {
               onTranscript={(transcript: string) => {
                 setInput(prev => (prev + (prev ? " " : "") + transcript).trim());
               }}
+              ttsMethod={ttsMethod}
             />
             <button
               type="submit"
