@@ -61,7 +61,6 @@ export const startVoskRecording = async (
 };
 
 export const stopVoskRecording = (
-  setIsRecording: (recording: boolean) => void,
   audioContextRef: React.MutableRefObject<AudioContext | null>,
   recognizerNodeRef: React.MutableRefObject<ScriptProcessorNode | null>,
   mediaStreamRef: React.MutableRefObject<MediaStream | null>
@@ -83,6 +82,4 @@ export const stopVoskRecording = (
     mediaStreamRef.current.getTracks().forEach(track => track.stop());
     mediaStreamRef.current = null;
   }
-
-  setIsRecording(false);
 };

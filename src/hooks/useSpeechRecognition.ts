@@ -15,13 +15,27 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
+    if (isRecording) {
+      stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+      stopWebSpeechRecording(webSpeechRef);
+      setIsRecording(false);
+    }
+
     if (ttsMethod === 'vosk') {
       setSpeechSupported(false);
-      return;
+    } else {
+      setSpeechSupported(isWebSpeechSupported());
     }
-    setSpeechSupported(isWebSpeechSupported());
-  }, [ttsMethod]);
 
+    // Cleanup on unmount
+    return () => {
+      if (ttsMethod === 'vosk') {
+        stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+      } else {
+        stopWebSpeechRecording(webSpeechRef);
+      }
+    };
+  }, [ttsMethod]);
 
 
   const startRecording = (): void => {
@@ -34,10 +48,11 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
 
   const stopRecording = (): void => {
     if (ttsMethod === 'vosk') {
-      stopVoskRecording(setIsRecording, audioContextRef, recognizerNodeRef, mediaStreamRef);
+      stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
     } else {
       stopWebSpeechRecording(webSpeechRef);
     }
+    setIsRecording(false);
   };
 
   const toggleRecording = (): void => {
@@ -48,17 +63,6 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
       startRecording();
     }
   };
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (ttsMethod === 'vosk') {
-        stopVoskRecording(setIsRecording, audioContextRef, recognizerNodeRef, mediaStreamRef);
-      } else {
-        stopWebSpeechRecording(webSpeechRef);
-      }
-    };
-  }, [ttsMethod]);
 
   return {
     isRecording,
