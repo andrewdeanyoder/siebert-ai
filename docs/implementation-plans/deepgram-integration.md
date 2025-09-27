@@ -132,28 +132,10 @@ export async function POST(request: Request) {
 - Success indicators when Deepgram is ready
 - Model switching without interrupting current session
 
-### Phase 4: Custom Vocabulary Integration
 
-#### 4.1 Biology/Anatomy Terms
-**Source**: Existing word list from `check-words.ts`
+### Phase 4: Testing and Quality Assurance
 
-**Terms to Include**:
-- Chromosomes, Chromatin, Chromatid
-- Centromere, Nuclear, Envelope
-- Centrosome, Spindle, fibers
-- microtubules, Prophase, Metaphase
-- Anaphase, Telophase, Cytokinesis
-- Cytoplasm, Metaphase plate
-
-#### 4.2 Deepgram Custom Vocabulary
-**Implementation**:
-- Use Deepgram's custom vocabulary feature
-- Configure keyterms for better recognition accuracy
-- Test with biology-specific terminology
-
-### Phase 5: Testing and Quality Assurance
-
-#### 5.1 Unit Tests
+#### 4.1 Unit Tests
 **File**: `tests/unit/Chat.deepgram.test.tsx`
 
 **Test Coverage**:
@@ -162,47 +144,45 @@ export async function POST(request: Request) {
 - Error handling scenarios
 - Audio stream processing
 
-#### 5.2 Integration Tests
+#### 4.2 Integration Tests
 **File**: `tests/integration/deepgram-integration.test.ts`
 
 **Test Scenarios**:
 - End-to-end Deepgram transcription
 - Model switching between all three options
-- Custom vocabulary recognition
 - Network failure handling
 
-#### 5.3 E2E Tests
+#### 4.3 E2E Tests
 **File**: `tests/e2e/deepgram.spec.ts`
 
 **Test Cases**:
 - User can select Deepgram model
 - Transcription works with Deepgram
-- Biology terms are recognized accurately
 - Model switching preserves session state
 
-### Phase 6: Performance Optimization
+### Phase 5: Performance Optimization
 
-#### 6.1 Connection Management
+#### 5.1 Connection Management
 - Implement connection pooling
 - Handle connection timeouts
 - Optimize audio chunk sizes
 - Manage memory usage
 
-#### 6.2 Latency Optimization
+#### 5.2 Latency Optimization
 - Minimize audio processing delays
 - Optimize network requests
 - Implement local buffering strategies
 - Monitor and log performance metrics
 
-### Phase 7: Documentation and Deployment
+### Phase 6: Documentation and Deployment
 
-#### 7.1 Documentation Updates
+#### 6.1 Documentation Updates
 - Update `docs/instructions.md` with Deepgram setup
 - Add API key configuration guide
 - Document model selection options
 - Create troubleshooting guide
 
-#### 7.2 Production Deployment
+#### 6.2 Production Deployment
 - Configure production API keys
 - Set up monitoring and logging
 - Implement usage analytics
@@ -243,6 +223,7 @@ User Input → Model Selection → Audio Capture → Next.js Proxy → Deepgram 
 - [ ] Real-time transcription works with Deepgram
 - [ ] Biology terms are recognized accurately
 - [ ] Model switching doesn't break existing functionality
+- [ ] Choosing a new model in the dropdown will properly end the Deepgram stream
 
 ### Performance Requirements
 - [ ] Transcription latency < 500ms
@@ -263,34 +244,11 @@ User Input → Model Selection → Audio Capture → Next.js Proxy → Deepgram 
 - **Network Issues**: Add offline detection and graceful degradation
 - **Audio Quality**: Validate audio format and sample rate requirements
 - **Browser Compatibility**: Test across target browsers
-
-### Business Risks
-- **Cost Management**: Monitor API usage and implement cost controls
 - **Data Privacy**: Ensure audio data handling complies with privacy requirements
 - **Reliability**: Maintain fallback options for critical functionality
-
-## Timeline Estimate
-
-- **Phase 1-2**: 3-4 days (Core implementation)
-- **Phase 3**: 2-3 days (UI integration)
-- **Phase 4**: 1-2 days (Custom vocabulary)
-- **Phase 5**: 3-4 days (Testing)
-- **Phase 6**: 2-3 days (Optimization)
-- **Phase 7**: 1-2 days (Documentation)
-
-**Total Estimated Time**: 12-18 days
-
-## Next Steps
-
-1. **Immediate**: Install Deepgram SDK and set up API key
-2. **Week 1**: Implement core Deepgram functionality
-3. **Week 2**: Integrate with UI and add custom vocabulary
-4. **Week 3**: Comprehensive testing and optimization
-5. **Week 4**: Documentation and deployment
 
 ## References
 
 - [Deepgram Live Streaming Documentation](https://developers.deepgram.com/docs/live-streaming-audio)
 - [Deepgram SDK for JavaScript](https://github.com/deepgram/deepgram-js-sdk)
-- [Custom Vocabulary Guide](https://developers.deepgram.com/docs/custom-vocabulary)
 - [Model Options and Languages](https://developers.deepgram.com/docs/models-and-languages)
