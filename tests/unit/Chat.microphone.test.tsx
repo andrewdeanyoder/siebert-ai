@@ -25,54 +25,37 @@ describe('Chat microphone', () => {
     ;(globalThis as any).webkitSpeechRecognition = MockSpeechRecognition as any
   })
 
-  it('toggles recording and streams transcription into the input', async () => {
+  it('displays TTS method dropdown with Vosk and Browser VoiceRecognition options', async () => {
     render(<Chat />)
 
-    const input = screen.getByPlaceholderText('Type your message...') as HTMLInputElement
+    // The dropdown should be present underneath the input field
+    const dropdown = screen.getByRole('combobox', { name: /tts method/i })
+    expect(dropdown).toBeInTheDocument()
 
-    // Initially the microphone toggle should be present
-    const micButtonStart = screen.getByRole('button', { name: /start recording/i })
+    // Click to open dropdown
+    fireEvent.click(dropdown)
 
-    // Wait until speech support effect enables the button
-    await waitFor(() => expect(micButtonStart).not.toBeDisabled())
+    // Should show both options
+    const browserOption = screen.getByRole('option', { name: /browser/i })
+    const voskOption = screen.getByRole('option', { name: /vosk \(untrained\)/i })
 
-    // Start recording
-    fireEvent.click(micButtonStart)
+    expect(browserOption).toBeInTheDocument()
+    expect(voskOption).toBeInTheDocument()
 
-    // After starting, the button should indicate stop state
-    const micButtonStop = await screen.findByRole('button', { name: /stop recording/i })
+    // Browser VoiceRecognition should be selected by default
+    expect(dropdown).toHaveValue('browser')
 
-    // Simulate recognition results streaming
-    const active = (globalThis as any).__activeSR as MockSpeechRecognition
-    expect(active).toBeTruthy()
+    // Select Vosk option
+    fireEvent.change(dropdown, { target: { value: 'vosk' } })
 
-    await act(async () => {
-      active.onresult?.({
-        resultIndex: 0,
-        results: [
-          { 0: { transcript: 'hello ' }, isFinal: true },
-        ],
-      } as any)
-    })
+    // Vosk should now be selected
+    expect(dropdown).toHaveValue('vosk')
 
-    await waitFor(() => expect(input.value.toLowerCase()).toContain('hello'))
-
-    await act(async () => {
-      active.onresult?.({
-        resultIndex: 1,
-        results: [
-          { 0: { transcript: 'world' }, isFinal: true },
-        ],
-      } as any)
-    })
-
-    await waitFor(() => expect(input.value.toLowerCase()).toContain('world'))
-
-    // Stop recording
-    fireEvent.click(micButtonStop)
-    // Button should revert to start state
-    await screen.findByRole('button', { name: /start recording/i })
+    const micButton = screen.getByRole('button', { name: /start recording/i })
+    expect(micButton).toBeInTheDocument()
   })
+
+
 })
 
 

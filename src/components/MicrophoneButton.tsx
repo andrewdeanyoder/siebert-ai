@@ -4,13 +4,15 @@ import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 interface MicrophoneButtonProps {
   isLoading: boolean;
   onTranscript: (transcript: string) => void;
+  ttsMethod: 'browser' | 'vosk';
 }
 
 const MicrophoneButton: React.FC<MicrophoneButtonProps> = ({
   isLoading,
   onTranscript,
+  ttsMethod,
 }) => {
-  const { isRecording, speechSupported, toggleRecording } = useSpeechRecognition(onTranscript);
+  const { isRecording, speechSupported, toggleRecording } = useSpeechRecognition(onTranscript, ttsMethod);
 
   return (
     <button

@@ -1,87 +1,58 @@
 import { useEffect, useRef, useState } from "react";
+import { startWebSpeechRecording, stopWebSpeechRecording, isWebSpeechSupported } from "../utils/webSpeechHelpers";
+import { startVoskRecording, stopVoskRecording } from "../utils/voskHelpers";
 
-interface ISpeechRecognitionResult {
-  isFinal: boolean;
-  0: { transcript: string };
-}
-
-interface ISpeechRecognitionEvent {
-  resultIndex: number;
-  results: ISpeechRecognitionResult[];
-}
-
-interface ISpeechRecognition {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: ISpeechRecognitionEvent) => void) | null;
-  onend: (() => void) | null;
-  onerror: ((event: unknown) => void) | null;
-  start: () => void;
-  stop: () => void;
-}
-
-type SpeechRecognitionConstructor = new () => ISpeechRecognition;
-
-const getSpeechRecognitionConstructor = (): SpeechRecognitionConstructor | null => {
-  if (typeof window === "undefined") return null;
-  const w = window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown };
-  return (w.SpeechRecognition || w.webkitSpeechRecognition) as SpeechRecognitionConstructor | null;
-};
-
-const isSpeechSupported = (): boolean => {
-  return getSpeechRecognitionConstructor() != null;
-};
-
-export const useSpeechRecognition = (onTranscript: (transcript: string) => void) => {
+export const useSpeechRecognition = (onTranscript: (transcript: string) => void, ttsMethod: 'browser' | 'vosk') => {
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
-  const recognitionRef = useRef<ISpeechRecognition | null>(null);
+
+  // Web Speech API refs
+  const webSpeechRef = useRef<{ start: () => void; stop: () => void } | null>(null);
+
+  // Vosk refs
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const recognizerNodeRef = useRef<ScriptProcessorNode | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
-    setSpeechSupported(isSpeechSupported());
-  }, []);
+    if (isRecording) {
+      stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+      stopWebSpeechRecording(webSpeechRef);
+      setIsRecording(false);
+    }
 
-  const startRecording = (): void => {
-    const Ctor = getSpeechRecognitionConstructor();
-    if (!Ctor) return;
+    if (ttsMethod === 'vosk') {
+      setSpeechSupported(false);
+    } else {
+      setSpeechSupported(isWebSpeechSupported());
+    }
 
-    const recognition = new Ctor();
-    recognition.continuous = true;
-    recognition.interimResults = false; // append only final results to avoid duplication
-    recognition.lang = "en-US";
-
-    recognition.onresult = (event: ISpeechRecognitionEvent) => {
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (!result) continue;
-        if (result.isFinal) {
-          const transcript = result[0]?.transcript ?? "";
-          if (transcript) {
-            onTranscript(transcript);
-          }
-        }
+    // Cleanup on unmount
+    return () => {
+      if (ttsMethod === 'vosk') {
+        stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+      } else {
+        stopWebSpeechRecording(webSpeechRef);
       }
     };
+  }, [ttsMethod]);
 
-    recognition.onerror = () => {
-      setIsRecording(false);
-    };
 
-    recognition.onend = () => {
-      setIsRecording(false);
-      recognitionRef.current = null;
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsRecording(true);
+  const startRecording = (): void => {
+    if (ttsMethod === 'vosk') {
+      startVoskRecording(onTranscript, setIsRecording, audioContextRef, recognizerNodeRef, mediaStreamRef);
+    } else {
+      startWebSpeechRecording(onTranscript, setIsRecording, webSpeechRef);
+    }
   };
 
   const stopRecording = (): void => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
+    if (ttsMethod === 'vosk') {
+      stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+    } else {
+      stopWebSpeechRecording(webSpeechRef);
     }
+    setIsRecording(false);
   };
 
   const toggleRecording = (): void => {
