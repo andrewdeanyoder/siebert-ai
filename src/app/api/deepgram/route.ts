@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
       cancel() {
         // Handle connection cleanup
-        connection.finish();
+        connection.requestClose();
         console.log('Deepgram connection cleaned up');
       }
     });

@@ -42,7 +42,6 @@ Status: DONE
 **Purpose**: Secure proxy between browser and Deepgram API
 - Keep API key secure on server
 - Handle WebSocket connections
-- Implement rate limiting and usage monitoring
 - Stream audio data bidirectionally
 
 #### 2.2 Create Deepgram Helper Module
