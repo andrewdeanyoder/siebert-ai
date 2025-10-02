@@ -52,11 +52,6 @@ Status: DONE
 - `stopDeepgramRecording()` - Clean up connections and resources
 - `isDeepgramModelLoaded()` - Check if Deepgram is ready
 
-**Configuration**:
-- Model: `nova-3` (latest model)
-- Language: `en-US`
-- Smart formatting: `true`
-
 #### 2.3 Audio Stream Integration
 **Implementation Details**:
 - Capture microphone audio using `getUserMedia()`
