@@ -11,7 +11,7 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [ttsMethod, setTtsMethod] = useState<'browser' | 'vosk'>('browser');
+  const [ttsMethod, setTtsMethod] = useState<'browser' | 'vosk' | 'deepgram'>('browser');
 
   // todo: move this into the upper scope
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -87,12 +87,13 @@ const Chat: React.FC = () => {
             <span className="text-white text-sm">Voice Recognition:</span>
             <select
               value={ttsMethod}
-              onChange={(e) => setTtsMethod(e.target.value as 'browser' | 'vosk')}
+              onChange={(e) => setTtsMethod(e.target.value as 'browser' | 'vosk' | 'deepgram')}
               className="px-2 py-1 bg-white border border-gray-300 rounded text-sm text-black focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
               aria-label="TTS Method"
             >
               <option value="browser">Browser</option>
               <option value="vosk">Vosk (Untrained)</option>
+              <option value="deepgram">Deepgram</option>
             </select>
           </div>
           <div className="text-center mt-2">
