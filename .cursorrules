@@ -27,7 +27,7 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - Reference `docs/instructions.md` before starting a new task.
 - Follow test driven development. Before writing production code, write failing tests first.
 - When writing production code, attempt to make the failing tests pass. Do NOT attempt to modify the test to make it pass.
-- After completing each unit of work, run the lint, build and test commands and attempt to fix any failures.
+- After completing each unit of work, run the lint, typecheck, build and test commands and attempt to fix any failures.
 - Do NOT commit code unless explicitly instructed.
 - Use pnpm for package management (`pnpm install`, `pnpm dev`, etc.)
 
@@ -38,6 +38,7 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - Use Tailwind CSS classes for styling
 - Maintain consistent error handling patterns
 - Prefer destructuring props in component parameters
+- Always run `pnpm types` to verify TypeScript types before committing changes
 
 ## Testing Guidelines
 - **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass; Important: if the tests do not run, do not continue with development!
