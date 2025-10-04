@@ -42,7 +42,7 @@ export const startDeepgramRecording = async (
     });
 
     // Create audio processing pipeline with AudioWorklet
-    audioContext = new AudioContext({ sampleRate: DEEPGRAM_SAMPLE_RATE });
+    audioContext = new AudioContext();
 
     // Load the AudioWorklet processor
     await audioContext.audioWorklet.addModule('/audio-processor.js');

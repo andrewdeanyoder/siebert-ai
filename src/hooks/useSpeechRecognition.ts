@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { startWebSpeechRecording, stopWebSpeechRecording, isWebSpeechSupported } from "../utils/webSpeechHelpers";
 import { startVoskRecording, stopVoskRecording } from "../utils/voskHelpers";
+import { startDeepgramRecording, stopDeepgramRecording, isDeepgramModelLoaded } from "../utils/deepgramHelpers";
 
-export const useSpeechRecognition = (onTranscript: (transcript: string) => void, ttsMethod: 'browser' | 'vosk') => {
+export const useSpeechRecognition = (onTranscript: (transcript: string) => void, ttsMethod: 'browser' | 'vosk' | 'deepgram') => {
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
 
@@ -18,11 +19,14 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
     if (isRecording) {
       stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
       stopWebSpeechRecording(webSpeechRef);
+      stopDeepgramRecording();
       setIsRecording(false);
     }
 
     if (ttsMethod === 'vosk') {
       setSpeechSupported(false);
+    } else if (ttsMethod === 'deepgram') {
+      setSpeechSupported(true);
     } else {
       setSpeechSupported(isWebSpeechSupported());
     }
@@ -31,6 +35,8 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
     return () => {
       if (ttsMethod === 'vosk') {
         stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+      } else if (ttsMethod === 'deepgram') {
+        stopDeepgramRecording();
       } else {
         stopWebSpeechRecording(webSpeechRef);
       }
@@ -41,6 +47,8 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
   const startRecording = (): void => {
     if (ttsMethod === 'vosk') {
       startVoskRecording(onTranscript, setIsRecording, audioContextRef, recognizerNodeRef, mediaStreamRef);
+    } else if (ttsMethod === 'deepgram') {
+      startDeepgramRecording(onTranscript, setIsRecording);
     } else {
       startWebSpeechRecording(onTranscript, setIsRecording, webSpeechRef);
     }
@@ -49,6 +57,8 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
   const stopRecording = (): void => {
     if (ttsMethod === 'vosk') {
       stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+    } else if (ttsMethod === 'deepgram') {
+      stopDeepgramRecording();
     } else {
       stopWebSpeechRecording(webSpeechRef);
     }

@@ -4,7 +4,7 @@ import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 interface MicrophoneButtonProps {
   isLoading: boolean;
   onTranscript: (transcript: string) => void;
-  ttsMethod: 'browser' | 'vosk';
+  ttsMethod: 'browser' | 'vosk' | 'deepgram';
 }
 
 const MicrophoneButton: React.FC<MicrophoneButtonProps> = ({
