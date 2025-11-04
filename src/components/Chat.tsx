@@ -69,7 +69,11 @@ const Chat: React.FC = () => {
             <MicrophoneButton
               isLoading={isLoading}
               onTranscript={(transcript: string) => {
-                setInput(prev => (prev + (prev ? " " : "") + transcript).trim());
+                setInput(prev => {
+                  const space = prev ? " " : "";
+
+                  return (prev + space + transcript).trim()
+                });
               }}
               ttsMethod={ttsMethod}
             />
