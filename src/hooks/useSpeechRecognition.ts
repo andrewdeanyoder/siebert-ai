@@ -19,6 +19,7 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
     if (isRecording) {
       stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
       stopWebSpeechRecording(webSpeechRef);
+      stopDeepgramRecording(setIsRecording);
       setIsRecording(false);
     }
 
@@ -46,10 +47,10 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
   const startRecording = (): void => {
     if (ttsMethod === 'vosk') {
       startVoskRecording(onTranscript, setIsRecording, audioContextRef, recognizerNodeRef, mediaStreamRef);
-    } else if (ttsMethod === 'deepgram') {
-      startDeepgramRecording(setIsRecording);
-    } else {
-      startWebSpeechRecording(onTranscript, setIsRecording, webSpeechRef);
+      } else if (ttsMethod === 'deepgram') {
+        startDeepgramRecording(setIsRecording, onTranscript);
+      } else {
+        startWebSpeechRecording(onTranscript, setIsRecording, webSpeechRef);
     }
   };
 
