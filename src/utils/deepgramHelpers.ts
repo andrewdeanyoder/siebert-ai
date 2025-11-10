@@ -15,27 +15,39 @@ let deepgramLive: DeepgramLiveConnection | null = null;
 let mediaStream: MediaStream | null = null;
 let audioContext: AudioContext | null = null;
 let processor: ScriptProcessorNode | null = null;
+let microphone: MediaRecorder | null = null;
 
-export const startDeepgramRecording = async (
-  setIsRecording: (isRecording: boolean) => void,
-  onTranscript: (transcript: string) => void
-) => {
+const setUpMicrophone = async (): Promise<MediaRecorder | null> => {
   try {
-    console.log('Starting Deepgram recording...');
+    const userMedia = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        noiseSuppression: true,
+        echoCancellation: true,
+      },
+    });
+    // todo: does creating a new MediaRecorder each time deepgram is started lead to a memory leak?
+    // what happens if Deepgram closes because of it's own timeout?
+    microphone = new MediaRecorder(userMedia);
 
-    // Get temporary token from our API
-    // todo: factor our token fetching to its own function
-    const tokenResponse = await fetch('/api/token', {cache: 'no-store'});
-    const {access_token} = await tokenResponse.json();
+    console.log('Microphone set up successfully', microphone);
 
-    if (!access_token) {
-      throw new Error('Failed to get Deepgram token');
-    }
+    return microphone;
+  } catch (error: unknown) {
+    console.error('Error getting microphone:', error);
+    throw error;
+  }
+};
 
-    // Create Deepgram client with temporary token
+const setUpDeepgram = async (setIsRecording: (isRecording: boolean) => void) => {
+  const tokenResponse = await fetch('/api/token', {cache: 'no-store'});
+  const {access_token} = await tokenResponse.json();
+  if (!access_token) {
+    throw new Error('Failed to get Deepgram token');
+  }
+  try {
+
     const deepgram = createClient({accessToken: access_token});
 
-    // Create live transcription connection
     deepgramLive = deepgram.listen.live({
       model: "nova-3",
       interim_results: true,
@@ -44,19 +56,9 @@ export const startDeepgramRecording = async (
       utterance_end_ms: 3000,
     });
 
-    // Handle transcription events
     deepgramLive.on(LiveTranscriptionEvents.Open, () => {
       console.log('Deepgram connection opened');
       setIsRecording(true);
-    });
-
-    // todo: type data properly here
-    deepgramLive.on(LiveTranscriptionEvents.Transcript, (data) => {
-      const thisCaption = data.channel?.alternatives?.[0]?.transcript;
-      if (thisCaption && data.is_final) {
-        console.log('Final transcript:', thisCaption);
-        onTranscript(thisCaption);
-      }
     });
 
     deepgramLive.on(LiveTranscriptionEvents.Error, (error: unknown) => {
@@ -66,46 +68,54 @@ export const startDeepgramRecording = async (
 
     deepgramLive.on(LiveTranscriptionEvents.Close, () => {
       console.log('Deepgram connection closed');
+      // todo: deepgram will close on it's own. Do I need to restart the microphone?
       setIsRecording(false);
     });
+  } catch (error: unknown) {
+    console.error('Error setting up Deepgram:', error);
+    setIsRecording(false);
+    throw error;
+  }
+}
 
-    // Get user media for audio capture
-    mediaStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        sampleRate: 16000,
-        channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
-      }
-    });
+export const startDeepgramRecording = async (
+  setIsRecording: (isRecording: boolean) => void,
+  onTranscript: (transcript: string) => void
+) => {
+  try {
+    console.log('Starting Deepgram recording...');
 
-    // Set up audio processing
-    audioContext = new AudioContext({ sampleRate: 16000 });
-    const source = audioContext.createMediaStreamSource(mediaStream);
+    microphone = await setUpMicrophone();
 
-    // Create script processor to capture audio data
-    processor = audioContext.createScriptProcessor(4096, 1, 1);
+    await setUpDeepgram(setIsRecording);
 
-    processor.onaudioprocess = (event) => {
-      if (deepgramLive && deepgramLive.getReadyState() === 1) {
-        const inputData = event.inputBuffer.getChannelData(0);
-        // Convert Float32Array to Int16Array for Deepgram
-        const int16Array = new Int16Array(inputData.length);
-        for (let i = 0; i < inputData.length; i++) {
-          const value = inputData[i];
-          if (value !== undefined) {
-            int16Array[i] = Math.max(-32768, Math.min(32767, value * 32768));
-          }
-        }
-        if (deepgramLive) {
-          deepgramLive.send(int16Array.buffer);
-        }
-      }
-    };
+    // Set up audio processing - use default sample rate to match MediaStream
+    // audioContext = new AudioContext();
+    // const source = audioContext.createMediaStreamSource(mediaStream);
+
+    // // Create script processor to capture audio data
+    // processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+    // processor.onaudioprocess = (event) => {
+    //   if (deepgramLive && deepgramLive.getReadyState() === 1) {
+    //     const inputData = event.inputBuffer.getChannelData(0);
+    //     // Convert Float32Array to Int16Array for Deepgram
+    //     const int16Array = new Int16Array(inputData.length);
+    //     for (let i = 0; i < inputData.length; i++) {
+    //       const value = inputData[i];
+    //       if (value !== undefined) {
+    //         int16Array[i] = Math.max(-32768, Math.min(32767, value * 32768));
+    //       }
+    //     }
+    //     if (deepgramLive) {
+    //       deepgramLive.send(int16Array.buffer);
+    //     }
+    //   }
+    // };
 
     // Connect audio nodes
-    source.connect(processor);
-    processor.connect(audioContext.destination);
+    // source.connect(processor);
+    // processor.connect(audioContext.destination);
 
     setIsRecording(true);
     console.log('Deepgram recording started successfully');
@@ -141,6 +151,11 @@ export const stopDeepgramRecording = (setIsRecording: (isRecording: boolean) => 
     if (deepgramLive) {
       deepgramLive.finish();
       deepgramLive = null;
+    }
+
+    if (microphone) {
+      microphone.stop();
+      microphone = null;
     }
 
     setIsRecording(false);
