@@ -7,21 +7,22 @@ let microphone: MediaRecorder | null = null;
 
 const setUpMicrophone = async (): Promise<MediaRecorder | null> => {
   try {
-    const userMedia = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        noiseSuppression: true,
-        echoCancellation: true,
-      },
-    });
-    // todo: does creating a new MediaRecorder each time deepgram is started lead to a memory leak?
-    // what happens if Deepgram closes because of it's own timeout?
-    microphone = new MediaRecorder(userMedia);
+      const userMedia = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          noiseSuppression: true,
+          echoCancellation: true,
+        },
+      });
+      // todo: does creating a new MediaRecorder each time deepgram is started lead to a memory leak?
+      // what happens if Deepgram closes because of it's own timeout?
+      microphone = new MediaRecorder(userMedia);
 
-    console.log('Microphone set up successfully', microphone);
+      console.log('Microphone set up successfully', microphone);
 
     return microphone;
   } catch (error: unknown) {
     console.error('Error getting microphone:', error);
+    microphone = null;
     throw error;
   }
 };
@@ -86,14 +87,8 @@ export const startDeepgramRecording = async (
         const { is_final: isFinal } = data;
         const thisCaption = data.channel.alternatives[0]?.transcript;
 
-        if(thisCaption === '') {
-          console.log('thisCaption is empty', data);
-        }
-
         if (thisCaption && thisCaption !== "" && isFinal) {
           onTranscript(thisCaption);
-        } else {
-          console.warn('invalid thisCaption:', `${thisCaption}`, typeof thisCaption === 'string');
         }
       });
 
@@ -105,11 +100,7 @@ export const startDeepgramRecording = async (
         }
       });
 
-      if (microphone?.state === "paused") {
-        microphone.resume();
-      } else {
-        microphone?.start(250);
-      }
+       microphone?.start(250);
     }
 
     console.log('Deepgram recording started successfully');
@@ -120,7 +111,7 @@ export const startDeepgramRecording = async (
   }
 };
 
-export const stopDeepgramRecording = (setIsRecording: (isRecording: boolean) => void) => {
+export const stopDeepgramRecording = () => {
   console.log('Stopping Deepgram recording...');
 
   try {
@@ -135,12 +126,10 @@ export const stopDeepgramRecording = (setIsRecording: (isRecording: boolean) => 
       deepGramConnection = null;
     }
 
-    setIsRecording(false);
     console.log('Deepgram recording stopped successfully');
 
   } catch (error) {
     console.error('Error stopping Deepgram recording:', error);
-    setIsRecording(false);
   }
 };
 
