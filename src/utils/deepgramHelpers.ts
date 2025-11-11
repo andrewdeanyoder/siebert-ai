@@ -1,6 +1,7 @@
 
 
 import { createClient, ListenLiveClient, LiveTranscriptionEvent, LiveTranscriptionEvents } from '@deepgram/sdk';
+import { RecordingState } from '../hooks/useSpeechRecognition';
 
 let deepGramConnection: ListenLiveClient | null = null;
 let microphone: MediaRecorder | null = null;
@@ -27,7 +28,7 @@ const setUpMicrophone = async (): Promise<MediaRecorder | null> => {
   }
 };
 
-const setUpDeepgram = async (setIsRecording: (isRecording: boolean) => void) => {
+const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void) => {
   const tokenResponse = await fetch('/api/token', {cache: 'no-store'});
   const {access_token} = await tokenResponse.json();
   if (!access_token) {
@@ -48,39 +49,39 @@ const setUpDeepgram = async (setIsRecording: (isRecording: boolean) => void) => 
 
       deepgramLiveConnection.on(LiveTranscriptionEvents.Open, () => {
         console.log('Deepgram connection opened');
-        setIsRecording(true);
+        setRecordingState(RecordingState.Recording);
         resolve(deepgramLiveConnection);
       });
 
       deepgramLiveConnection.on(LiveTranscriptionEvents.Error, (error: unknown) => {
         console.error('Deepgram error:', error);
-        setIsRecording(false);
+        setRecordingState(RecordingState.Error);
         reject(error);
       });
 
       deepgramLiveConnection.on(LiveTranscriptionEvents.Close, () => {
         console.log('Deepgram connection closed');
         // todo: deepgram will close on it's own. Do I need to clear the microphone?
-        setIsRecording(false);
+        setRecordingState(RecordingState.Stopped);
         resolve(null);
       });
     } catch (error: unknown) {
       console.error('Error setting up Deepgram:', error);
-      setIsRecording(false);
+      setRecordingState(RecordingState.Error);
       throw error;
     }
   });
 }
 
 export const startDeepgramRecording = async (
-  setIsRecording: (isRecording: boolean) => void,
+  setRecordingState: (state: RecordingState) => void,
   onTranscript: (transcript: string) => void
 ) => {
   try {
     console.log('Starting Deepgram recording...');
 
     microphone = await setUpMicrophone();
-    deepGramConnection = await setUpDeepgram(setIsRecording);
+    deepGramConnection = await setUpDeepgram(setRecordingState);
 
     if(deepGramConnection && microphone) {
       deepGramConnection.addListener(LiveTranscriptionEvents.Transcript, (data: LiveTranscriptionEvent) => {
@@ -107,7 +108,7 @@ export const startDeepgramRecording = async (
 
   } catch (error) {
     console.error('Error starting Deepgram recording:', error);
-    setIsRecording(false);
+    setRecordingState(RecordingState.Error);
   }
 };
 
