@@ -1,17 +1,8 @@
 
 
-import { createClient, LiveTranscriptionEvents } from '@deepgram/sdk';
+import { createClient, ListenLiveClient, LiveTranscriptionEvent, LiveTranscriptionEvents } from '@deepgram/sdk';
 
-// Type for Deepgram live connection
-interface DeepgramLiveConnection {
-  on: (event: string, callback: (data: unknown) => void) => void;
-  send: (buffer: ArrayBuffer) => void;
-  finish: () => void;
-  getReadyState: () => number;
-}
-
-// Global variables to manage Deepgram connection and audio stream
-let deepgramLive: DeepgramLiveConnection | null = null;
+let deepGramConnection: ListenLiveClient | null = null;
 let mediaStream: MediaStream | null = null;
 let audioContext: AudioContext | null = null;
 let processor: ScriptProcessorNode | null = null;
@@ -44,38 +35,43 @@ const setUpDeepgram = async (setIsRecording: (isRecording: boolean) => void) => 
   if (!access_token) {
     throw new Error('Failed to get Deepgram token');
   }
-  try {
+  let deepgramLiveConnection: ListenLiveClient | null = null;
 
-    const deepgram = createClient({accessToken: access_token});
+  return new Promise<ListenLiveClient | null>((resolve, reject) => {
+    try {
+      const deepgram = createClient({accessToken: access_token});
+      deepgramLiveConnection = deepgram.listen.live({
+        model: "nova-3",
+        interim_results: true,
+        smart_format: true,
+        filler_words: true,
+        utterance_end_ms: 3000,
+      });
 
-    deepgramLive = deepgram.listen.live({
-      model: "nova-3",
-      interim_results: true,
-      smart_format: true,
-      filler_words: true,
-      utterance_end_ms: 3000,
-    });
+      deepgramLiveConnection.on(LiveTranscriptionEvents.Open, () => {
+        console.log('Deepgram connection opened');
+        setIsRecording(true);
+        resolve(deepgramLiveConnection);
+      });
 
-    deepgramLive.on(LiveTranscriptionEvents.Open, () => {
-      console.log('Deepgram connection opened');
-      setIsRecording(true);
-    });
+      deepgramLiveConnection.on(LiveTranscriptionEvents.Error, (error: unknown) => {
+        console.error('Deepgram error:', error);
+        setIsRecording(false);
+        reject(error);
+      });
 
-    deepgramLive.on(LiveTranscriptionEvents.Error, (error: unknown) => {
-      console.error('Deepgram error:', error);
+      deepgramLiveConnection.on(LiveTranscriptionEvents.Close, () => {
+        console.log('Deepgram connection closed');
+        // todo: deepgram will close on it's own. Do I need to clear the microphone?
+        setIsRecording(false);
+        resolve(null);
+      });
+    } catch (error: unknown) {
+      console.error('Error setting up Deepgram:', error);
       setIsRecording(false);
-    });
-
-    deepgramLive.on(LiveTranscriptionEvents.Close, () => {
-      console.log('Deepgram connection closed');
-      // todo: deepgram will close on it's own. Do I need to restart the microphone?
-      setIsRecording(false);
-    });
-  } catch (error: unknown) {
-    console.error('Error setting up Deepgram:', error);
-    setIsRecording(false);
-    throw error;
-  }
+      throw error;
+    }
+  });
 }
 
 export const startDeepgramRecording = async (
@@ -86,9 +82,43 @@ export const startDeepgramRecording = async (
     console.log('Starting Deepgram recording...');
 
     microphone = await setUpMicrophone();
+    deepGramConnection = await setUpDeepgram(setIsRecording);
 
-    await setUpDeepgram(setIsRecording);
+    if(deepGramConnection && microphone) {
+      deepGramConnection.addListener(LiveTranscriptionEvents.Transcript, (data: LiveTranscriptionEvent) => {
+        const { is_final: isFinal, speech_final: speechFinal } = data;
+        const thisCaption = data.channel.alternatives[0]?.transcript;
 
+        console.log("thisCaption", thisCaption);
+        if (thisCaption && thisCaption !== "") {
+          console.log('thisCaption !== ""', thisCaption);
+          onTranscript(thisCaption);
+        } else {
+          console.warn('invalid thisCaption:', `${thisCaption}`, typeof thisCaption === 'string');
+        }
+
+        if (isFinal && speechFinal) {
+          // todo: do I need to do something else when it's final?
+          console.log({isFinal, speechFinal})
+        }
+
+      });
+
+      microphone.addEventListener('dataavailable', (e: BlobEvent) => {
+        // iOS SAFARI FIX:
+        // Prevent packetZero from being sent. If sent at size 0, the connection will close.
+        console.log('dataavailable', e.data.size);
+        if (e.data.size > 0) {
+          deepGramConnection?.send(e.data);
+        }
+      });
+
+      if (microphone?.state === "paused") {
+        microphone.resume();
+      } else {
+        microphone?.start(250);
+      }
+    }
     // Set up audio processing - use default sample rate to match MediaStream
     // audioContext = new AudioContext();
     // const source = audioContext.createMediaStreamSource(mediaStream);
@@ -148,9 +178,9 @@ export const stopDeepgramRecording = (setIsRecording: (isRecording: boolean) => 
     }
 
     // Close Deepgram connection
-    if (deepgramLive) {
-      deepgramLive.finish();
-      deepgramLive = null;
+    if (deepGramConnection) {
+      deepGramConnection.requestClose();
+      deepGramConnection = null;
     }
 
     if (microphone) {
