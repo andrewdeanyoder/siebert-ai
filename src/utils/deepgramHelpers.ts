@@ -3,9 +3,6 @@
 import { createClient, ListenLiveClient, LiveTranscriptionEvent, LiveTranscriptionEvents } from '@deepgram/sdk';
 
 let deepGramConnection: ListenLiveClient | null = null;
-let mediaStream: MediaStream | null = null;
-let audioContext: AudioContext | null = null;
-let processor: ScriptProcessorNode | null = null;
 let microphone: MediaRecorder | null = null;
 
 const setUpMicrophone = async (): Promise<MediaRecorder | null> => {
@@ -86,28 +83,23 @@ export const startDeepgramRecording = async (
 
     if(deepGramConnection && microphone) {
       deepGramConnection.addListener(LiveTranscriptionEvents.Transcript, (data: LiveTranscriptionEvent) => {
-        const { is_final: isFinal, speech_final: speechFinal } = data;
+        const { is_final: isFinal } = data;
         const thisCaption = data.channel.alternatives[0]?.transcript;
 
-        console.log("thisCaption", thisCaption);
-        if (thisCaption && thisCaption !== "") {
-          console.log('thisCaption !== ""', thisCaption);
+        if(thisCaption === '') {
+          console.log('thisCaption is empty', data);
+        }
+
+        if (thisCaption && thisCaption !== "" && isFinal) {
           onTranscript(thisCaption);
         } else {
           console.warn('invalid thisCaption:', `${thisCaption}`, typeof thisCaption === 'string');
         }
-
-        if (isFinal && speechFinal) {
-          // todo: do I need to do something else when it's final?
-          console.log({isFinal, speechFinal})
-        }
-
       });
 
       microphone.addEventListener('dataavailable', (e: BlobEvent) => {
         // iOS SAFARI FIX:
         // Prevent packetZero from being sent. If sent at size 0, the connection will close.
-        console.log('dataavailable', e.data.size);
         if (e.data.size > 0) {
           deepGramConnection?.send(e.data);
         }
@@ -119,35 +111,7 @@ export const startDeepgramRecording = async (
         microphone?.start(250);
       }
     }
-    // Set up audio processing - use default sample rate to match MediaStream
-    // audioContext = new AudioContext();
-    // const source = audioContext.createMediaStreamSource(mediaStream);
 
-    // // Create script processor to capture audio data
-    // processor = audioContext.createScriptProcessor(4096, 1, 1);
-
-    // processor.onaudioprocess = (event) => {
-    //   if (deepgramLive && deepgramLive.getReadyState() === 1) {
-    //     const inputData = event.inputBuffer.getChannelData(0);
-    //     // Convert Float32Array to Int16Array for Deepgram
-    //     const int16Array = new Int16Array(inputData.length);
-    //     for (let i = 0; i < inputData.length; i++) {
-    //       const value = inputData[i];
-    //       if (value !== undefined) {
-    //         int16Array[i] = Math.max(-32768, Math.min(32767, value * 32768));
-    //       }
-    //     }
-    //     if (deepgramLive) {
-    //       deepgramLive.send(int16Array.buffer);
-    //     }
-    //   }
-    // };
-
-    // Connect audio nodes
-    // source.connect(processor);
-    // processor.connect(audioContext.destination);
-
-    setIsRecording(true);
     console.log('Deepgram recording started successfully');
 
   } catch (error) {
@@ -160,32 +124,15 @@ export const stopDeepgramRecording = (setIsRecording: (isRecording: boolean) => 
   console.log('Stopping Deepgram recording...');
 
   try {
-    // Stop audio processing
-    if (processor) {
-      processor.disconnect();
-      processor = null;
+    if (microphone) {
+      microphone.stop();
+      microphone.stream.getTracks().forEach(track => track.stop());
+      microphone = null;
     }
 
-    if (audioContext) {
-      audioContext.close();
-      audioContext = null;
-    }
-
-    // Stop media stream
-    if (mediaStream) {
-      mediaStream.getTracks().forEach(track => track.stop());
-      mediaStream = null;
-    }
-
-    // Close Deepgram connection
     if (deepGramConnection) {
       deepGramConnection.requestClose();
       deepGramConnection = null;
-    }
-
-    if (microphone) {
-      microphone.stop();
-      microphone = null;
     }
 
     setIsRecording(false);

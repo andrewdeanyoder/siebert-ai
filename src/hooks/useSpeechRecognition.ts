@@ -41,6 +41,8 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
         stopWebSpeechRecording(webSpeechRef);
       }
     };
+  // only listen to ttsMethod here. Otherwise recording will never start.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ttsMethod]);
 
 
