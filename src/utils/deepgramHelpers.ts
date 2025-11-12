@@ -39,6 +39,7 @@ const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void)
   return new Promise<ListenLiveClient | null>((resolve, reject) => {
     try {
       const deepgram = createClient({accessToken: access_token});
+
       deepgramLiveConnection = deepgram.listen.live({
         model: "nova-3",
         interim_results: true,
@@ -59,12 +60,13 @@ const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void)
         reject(error);
       });
 
-      deepgramLiveConnection.on(LiveTranscriptionEvents.Close, () => {
-        console.log('Deepgram connection closed');
-        // todo: deepgram will close on it's own. Do I need to clear the microphone?
+      deepgramLiveConnection.on(LiveTranscriptionEvents.Close, (event) => {
+        console.log('Deepgram connection closed', event);
         setRecordingState(RecordingState.Stopped);
+        stopMicrophone();
         resolve(null);
       });
+
     } catch (error: unknown) {
       console.error('Error setting up Deepgram:', error);
       setRecordingState(RecordingState.Error);
@@ -108,7 +110,17 @@ export const startDeepgramRecording = async (
 
   } catch (error) {
     console.error('Error starting Deepgram recording:', error);
+    stopDeepgramRecording();
     setRecordingState(RecordingState.Error);
+  }
+};
+
+const stopMicrophone = () => {
+  console.log('Stopping microphone...', microphone);
+  if (microphone) {
+    microphone.stop();
+    microphone.stream.getTracks().forEach(track => track.stop());
+    microphone = null;
   }
 };
 
@@ -116,11 +128,7 @@ export const stopDeepgramRecording = () => {
   console.log('Stopping Deepgram recording...');
 
   try {
-    if (microphone) {
-      microphone.stop();
-      microphone.stream.getTracks().forEach(track => track.stop());
-      microphone = null;
-    }
+    stopMicrophone();
 
     if (deepGramConnection) {
       deepGramConnection.requestClose();

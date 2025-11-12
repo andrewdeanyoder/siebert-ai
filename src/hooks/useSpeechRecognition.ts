@@ -41,7 +41,6 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
       setSpeechSupported(isWebSpeechSupported());
     }
 
-    // Cleanup on unmount
     return () => {
       if (ttsMethod === 'vosk') {
         stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
