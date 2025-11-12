@@ -36,7 +36,7 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
 
     if (ttsMethod === TtsMethod.Vosk) {
       setSpeechSupported(false);
-    } else if (ttsMethod === TtsMethod.Deepgram) {
+    } else if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
       setSpeechSupported(true);
     } else {
       setSpeechSupported(isWebSpeechSupported());
@@ -45,7 +45,7 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
     return () => {
       if (ttsMethod === TtsMethod.Vosk) {
         stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
-      } else if (ttsMethod === TtsMethod.Deepgram) {
+      } else if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
         stopDeepgramRecording();
       } else {
         stopWebSpeechRecording(webSpeechRef);
@@ -61,9 +61,9 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
       startVoskRecording(onTranscript, (recording) => {
         setRecordingState(recording ? RecordingState.Recording : RecordingState.Stopped);
       }, audioContextRef, recognizerNodeRef, mediaStreamRef);
-    } else if (ttsMethod === TtsMethod.Deepgram) {
+    } else if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
       setRecordingState(RecordingState.Loading);
-      startDeepgramRecording(setRecordingState, onTranscript);
+      startDeepgramRecording(setRecordingState, onTranscript, ttsMethod);
     } else {
       startWebSpeechRecording(onTranscript, (recording) => {
         setRecordingState(recording ? RecordingState.Recording : RecordingState.Stopped);
@@ -74,7 +74,7 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
   const stopRecording = (): void => {
     if (ttsMethod === TtsMethod.Vosk) {
       stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
-    } else if (ttsMethod === TtsMethod.Deepgram) {
+    } else if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
       stopDeepgramRecording();
     } else {
       stopWebSpeechRecording(webSpeechRef);

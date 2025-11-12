@@ -9,6 +9,7 @@ import MicrophoneButton from "./MicrophoneButton";
 
 export enum TtsMethod {
   Deepgram = 'deepgram',
+  DeepgramMedical = 'deepgram-medical',
   Browser = 'browser',
   Vosk = 'vosk',
 }
@@ -102,6 +103,7 @@ const Chat: React.FC = () => {
               aria-label="TTS Method"
             >
               <option value={TtsMethod.Deepgram}>Deepgram</option>
+              <option value={TtsMethod.DeepgramMedical}>Deepgram Medical</option>
               <option value={TtsMethod.Browser}>Browser</option>
               <option value={TtsMethod.Vosk}>Vosk (Does not work yet)</option>
             </select>

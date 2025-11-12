@@ -2,6 +2,7 @@
 
 import { createClient, ListenLiveClient, LiveTranscriptionEvent, LiveTranscriptionEvents } from '@deepgram/sdk';
 import { RecordingState } from '../hooks/useSpeechRecognition';
+import { TtsMethod } from '../components/Chat';
 
 let deepGramConnection: ListenLiveClient | null = null;
 let microphone: MediaRecorder | null = null;
@@ -28,7 +29,7 @@ const setUpMicrophone = async (): Promise<MediaRecorder | null> => {
   }
 };
 
-const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void) => {
+const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void, ttsMethod: TtsMethod) => {
   const tokenResponse = await fetch('/api/token', {cache: 'no-store'});
   const {access_token} = await tokenResponse.json();
   if (!access_token) {
@@ -40,8 +41,10 @@ const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void)
     try {
       const deepgram = createClient({accessToken: access_token});
 
+      const model = ttsMethod === TtsMethod.DeepgramMedical ? "nova-3-medical" : "nova-3";
+
       deepgramLiveConnection = deepgram.listen.live({
-        model: "nova-3",
+        model,
         interim_results: true,
         smart_format: true,
         filler_words: true,
@@ -77,13 +80,14 @@ const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void)
 
 export const startDeepgramRecording = async (
   setRecordingState: (state: RecordingState) => void,
-  onTranscript: (transcript: string) => void
+  onTranscript: (transcript: string) => void,
+  ttsMethod: TtsMethod
 ) => {
   try {
     console.log('Starting Deepgram recording...');
 
     microphone = await setUpMicrophone();
-    deepGramConnection = await setUpDeepgram(setRecordingState);
+    deepGramConnection = await setUpDeepgram(setRecordingState, ttsMethod);
 
     if(deepGramConnection && microphone) {
       deepGramConnection.addListener(LiveTranscriptionEvents.Transcript, (data: LiveTranscriptionEvent) => {
