@@ -1,10 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { startWebSpeechRecording, stopWebSpeechRecording, isWebSpeechSupported } from "../utils/webSpeechHelpers";
 import { startVoskRecording, stopVoskRecording } from "../utils/voskHelpers";
+import { startDeepgramRecording, stopDeepgramRecording } from "../utils/deepgramHelpers";
+import { TtsMethod } from "../components/Chat";
 
-export const useSpeechRecognition = (onTranscript: (transcript: string) => void, ttsMethod: 'browser' | 'vosk') => {
-  const [isRecording, setIsRecording] = useState(false);
+export enum RecordingState {
+  Stopped = 'stopped',
+  Loading = 'loading',
+  Recording = 'recording',
+  Error = 'error',
+}
+
+export const useSpeechRecognition = (onTranscript: (transcript: string) => void, ttsMethod: TtsMethod) => {
+  const [recordingState, setRecordingState] = useState<RecordingState>(RecordingState.Stopped);
   const [speechSupported, setSpeechSupported] = useState(false);
+
+  // For backward compatibility with browser/vosk methods
+  const isRecordingOrLoading = recordingState === RecordingState.Recording || recordingState === RecordingState.Loading;
 
   // Web Speech API refs
   const webSpeechRef = useRef<{ start: () => void; stop: () => void } | null>(null);
@@ -15,49 +27,64 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
-    if (isRecording) {
+    if (isRecordingOrLoading) {
       stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
       stopWebSpeechRecording(webSpeechRef);
-      setIsRecording(false);
+      stopDeepgramRecording();
+      setRecordingState(RecordingState.Stopped);
     }
 
-    if (ttsMethod === 'vosk') {
+    if (ttsMethod === TtsMethod.Vosk) {
       setSpeechSupported(false);
+    } else if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
+      setSpeechSupported(true);
     } else {
       setSpeechSupported(isWebSpeechSupported());
     }
 
-    // Cleanup on unmount
     return () => {
-      if (ttsMethod === 'vosk') {
+      if (ttsMethod === TtsMethod.Vosk) {
         stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+      } else if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
+        stopDeepgramRecording();
       } else {
         stopWebSpeechRecording(webSpeechRef);
       }
     };
+  // only listen to ttsMethod here. Otherwise recording will never start.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ttsMethod]);
 
 
   const startRecording = (): void => {
-    if (ttsMethod === 'vosk') {
-      startVoskRecording(onTranscript, setIsRecording, audioContextRef, recognizerNodeRef, mediaStreamRef);
+    if (ttsMethod === TtsMethod.Vosk) {
+      startVoskRecording(onTranscript, (recording) => {
+        setRecordingState(recording ? RecordingState.Recording : RecordingState.Stopped);
+      }, audioContextRef, recognizerNodeRef, mediaStreamRef);
+    } else if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
+      setRecordingState(RecordingState.Loading);
+      startDeepgramRecording(setRecordingState, onTranscript, ttsMethod);
     } else {
-      startWebSpeechRecording(onTranscript, setIsRecording, webSpeechRef);
+      startWebSpeechRecording(onTranscript, (recording) => {
+        setRecordingState(recording ? RecordingState.Recording : RecordingState.Stopped);
+      }, webSpeechRef);
     }
   };
 
   const stopRecording = (): void => {
-    if (ttsMethod === 'vosk') {
+    if (ttsMethod === TtsMethod.Vosk) {
       stopVoskRecording(audioContextRef, recognizerNodeRef, mediaStreamRef);
+    } else if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
+      stopDeepgramRecording();
     } else {
       stopWebSpeechRecording(webSpeechRef);
     }
-    setIsRecording(false);
+    setRecordingState(RecordingState.Stopped);
   };
 
   const toggleRecording = (): void => {
     if (!speechSupported) return;
-    if (isRecording) {
+    if (isRecordingOrLoading) {
       stopRecording();
     } else {
       startRecording();
@@ -65,7 +92,7 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
   };
 
   return {
-    isRecording,
+    recordingState,
     speechSupported,
     toggleRecording,
   };

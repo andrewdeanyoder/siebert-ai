@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "types": "tsc --noEmit",
     "docs": "npx --yes http-server docs/architecture -p 8000 -o view-diagrams.html",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -18,6 +19,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "1.3.24",
+    "@deepgram/sdk": "4.11.2",
     "@supabase/ssr": "0.7.0",
     "@supabase/supabase-js": "2.57.4",
     "@vercel/analytics": "1.5.0",
