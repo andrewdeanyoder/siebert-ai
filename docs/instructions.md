@@ -41,8 +41,8 @@ This file lists completed and upcoming units of work.
     d. [x] code Deepgram TTS
         i. [x] get deepgram to work
         ii. [x] add a loading spinner and error state
-        iii. [ ] make sure I handle tear down in all use cases
-        iv. [ ] give the option to choose medical
+        iii. [x] make sure I handle tear down in all use cases
+        iv. [x] give the option to choose medical
     e. [ ] make the text area expand as interim results come in
 22. [ ] productionize chosen TTS method
     b. [ ] help me understand all implementations in detail
