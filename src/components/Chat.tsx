@@ -20,7 +20,7 @@ const Chat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [ttsMethod, setTtsMethod] = useState<TtsMethod>(TtsMethod.Deepgram);
 
-  // todo: move this into the upper scope
+  // todo: move this into the upper scope.
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
   };
