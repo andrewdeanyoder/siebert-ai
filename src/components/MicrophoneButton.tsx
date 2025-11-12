@@ -1,10 +1,11 @@
 import React from "react";
 import { useSpeechRecognition, RecordingState } from "../hooks/useSpeechRecognition";
+import { TtsMethod } from "./Chat";
 
 interface MicrophoneButtonProps {
   isLoading: boolean;
   onTranscript: (transcript: string) => void;
-  ttsMethod: 'browser' | 'vosk' | 'deepgram';
+  ttsMethod: TtsMethod;
 }
 
 const getButtonContent = (recordingState: RecordingState): React.ReactElement => {
