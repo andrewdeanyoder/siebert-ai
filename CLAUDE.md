@@ -66,3 +66,9 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - Keep the responsive design with max-width constraints
 - Preserve any loading states and disabled states
 - Maintain accessibility with proper ARIA labels and keyboard navigation
+
+## Environment
+- Run `nvm use` before running commands in this project
+
+## Playwright
+- Don't automatically open the report after running end-to-end tests

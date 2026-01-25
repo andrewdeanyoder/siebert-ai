@@ -15,7 +15,7 @@ a. [x] Migrate .cursorrules file to Claude docs folder
 b. [x] Review and convert cursor-specific settings to Claude format
 
 ### 3. Custom Global Instructions
-a. [ ] Set up custom global instructions in Claude Code settings
+a. [x] Set up custom global instructions in Claude Code settings
 b. [ ] Define preferences for tone, coding style, and response format
 c. [ ] Configure how Claude should interact and make decisions
 
@@ -26,6 +26,7 @@ c. [ ] Look for examples online to populate with project-specific workflows
 d. [ ] Create project-specific commands (like `/test-auth` or `/run-e2e`)
 e. [ ] Set up deployment commands if applicable
 f. [ ] Install GitHub CLI (`brew install gh && gh auth login`) for PR/issue commands
+g. [ ] Refine guidelines for what is a feat, chore, etc. in the commit skill
 
 ### 5. Git Hooks Configuration
 a. [ ] Set up pre-commit hooks to run linters/formatters automatically
