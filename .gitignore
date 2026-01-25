@@ -13,3 +13,6 @@ tsconfig.tsbuildinfo
 # Tests
 test-results/
 playwright-report/
+
+# Claude Code personal instructions
+CLAUDE.local.md
