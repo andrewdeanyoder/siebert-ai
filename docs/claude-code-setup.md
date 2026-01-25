@@ -20,7 +20,7 @@ b. [ ] Define preferences for tone, coding style, and response format
 c. [ ] Configure how Claude should interact and make decisions
 
 ### 4. Skills and Prompts Setup
-a. [ ] Create `.claude/skills/` directory for custom commands
+a. [x] Create `.claude/skills/` directory for custom commands
 b. [ ] Create `.claude/prompts/` directory for reusable prompt templates
 c. [ ] Look for examples online to populate with project-specific workflows
 d. [ ] Create project-specific commands (like `/test-auth` or `/run-e2e`)

@@ -14,5 +14,6 @@ tsconfig.tsbuildinfo
 test-results/
 playwright-report/
 
-# Claude Code personal instructions
+# Claude Code personal settings
 CLAUDE.local.md
+.claude/settings.local.json
