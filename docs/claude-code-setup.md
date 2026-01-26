@@ -37,9 +37,10 @@ b. [ ] Configure post-commit hooks for notifications or automation
 c. [ ] Add hooks in Claude Code settings to enforce quality gates
 
 ### 7. Test Runner Integration
-a. [ ] Configure automatic test running after code changes
-b. [ ] Set up which test commands to use (Vitest & Playwright)
-c. [ ] Enable/disable auto-run based on preference
+a. [x] Define the overall testing stratgy.
+b. [x] Configure automatic test running before committing
+c. [x] Set up which test commands to use (Vitest & Playwright)
+d. [x] Enable/disable auto-run based on preference
 
 ### 8. MCP (Model Context Protocol) Servers
 a. [ ] Install GitHub MCP server for seamless PR/issue management

@@ -10,7 +10,6 @@
     "types": "tsc --noEmit",
     "docs": "npx --yes http-server docs/architecture -p 8000 -o view-diagrams.html",
     "test": "vitest",
-    "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
