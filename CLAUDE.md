@@ -41,18 +41,10 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - Always run `pnpm types` to verify TypeScript types before committing changes
 
 ## Testing Guidelines
+- Reference `docs/testing-strategy.md` before writing or modifying tests
 - **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass; Important: if the tests do not run, do not continue with development!
-- **Test User Behavior, Not Implementation**: Focus on what users can do/see, not internal functions
+- **Test User Behavior, Not Implementation**: Test what users can do/see, not internal functions
 - **Prefer Integration Tests**: Test components and features working together, not isolated units
-- **Minimize Mocks**: Only mock external dependencies (APIs, file system), not internal logic
-- **Use Arrange-Act-Assert Pattern**: Structure tests as setup → action → verification
-- **Test File Organization**:
-  - Unit tests: `tests/unit/ComponentName.test.tsx`
-  - Integration tests: `tests/integration/FeatureName.test.ts`
-  - E2E tests: `tests/e2e/UserWorkflow.spec.ts`
-- **Test Naming**: Use descriptive names like "should display error when API fails" not "test1"
-- **Coverage Focus**: Aim for meaningful coverage of user workflows, not 100% line coverage
-- **Selectors preference**: Prefer semantic elements (button, input, etc.) and aria-role attributes over CSS classes. Fall back to data-testid for complex selectors.
 
 ## File Organization
 - Keep components in `src/components/`
