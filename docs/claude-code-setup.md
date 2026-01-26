@@ -32,9 +32,8 @@ a. [ ] explore using claude code terminal inside cursor just for the autocomplet
 b. [ ] claude extension work inside cursor?
 
 ### 6. Git Hooks Configuration
-a. [ ] Set up pre-commit hooks to run linters/formatters automatically
-b. [ ] Configure post-commit hooks for notifications or automation
-c. [ ] Add hooks in Claude Code settings to enforce quality gates
+a. [x] Set up pre-commit hooks to run linters/formatters automatically
+b. [ ] Explore post-edit hook to log/display changes without blocking Claude
 
 ### 7. Test Runner Integration
 a. [x] Define the overall testing stratgy.
