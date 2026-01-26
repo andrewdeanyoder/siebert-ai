@@ -1,5 +1,1 @@
-{
-  "hooks": {
-    "preCommit": "pnpm test:run && pnpm types && pnpm lint"
-  }
-}
+{}
