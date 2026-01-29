@@ -1,0 +1,66 @@
+# Project Instructions for Siebert Science AI
+
+## Project Overview
+This is an AI-powered anatomy and physiology tutoring application built with Next.js, TypeScript, and Tailwind CSS. The AI tutor specializes in evidence-based learning strategies and cognitive neuroscience principles.
+
+## Key Technologies
+- Next.js 15.4.2 with App Router
+- React 19.1.0
+- TypeScript
+- Tailwind CSS v4 for styling
+- AI SDK for OpenAI integration
+- Eslint and Prettier for linting
+- pnpm as package manager
+
+## Architecture Guidelines
+- **Component Extraction**: When a component becomes longer than 50-60 lines, consider extracting reusable parts into separate components.
+- **Single Responsibility**: Each component should have one clear purpose. If a component handles multiple concerns, break it down.
+- Keep constants centralized in `src/constants.ts`.
+- Use the App Router pattern with `src/app/` directory structure.
+- Reference `docs/architecture/current-architecture.md` before planning any new work.
+- Update `docs/architecture/current-architecture.md` after performing any work.
+- The system prompt in `prompts.ts` is critical. Do NOT change it unless explicitly instructed.
+
+## Development Workflow
+- CRITICAL: Always work in small increments. Implement the smallest change needed to complete a task. NO EXCEPTIONS.
+- PREOPTIMIZATION FORBIDDEN: Do not add complexity, variants, or "future-proofing" features. Build exactly what is requested, nothing more.
+- Reference `docs/instructions.md` before starting a new task.
+- Follow test driven development. Before writing production code, write failing tests first.
+- When writing production code, attempt to make the failing tests pass. Do NOT attempt to modify the test to make it pass.
+- After completing each unit of work, run the lint, typecheck, build and test commands and attempt to fix any failures.
+- Do NOT commit code unless explicitly instructed.
+- Use pnpm for package management (`pnpm install`, `pnpm dev`, etc.)
+
+## Code Style
+- Use TypeScript interfaces for all component props
+- Prefer explicit types instead of `any`
+- Follow React functional component patterns with hooks
+- Use Tailwind CSS classes for styling
+- Maintain consistent error handling patterns
+- Prefer destructuring props in component parameters
+- Always run `pnpm types` to verify TypeScript types before committing changes
+
+## Testing Guidelines
+- Reference `docs/testing-strategy.md` before writing or modifying tests
+- **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass; Important: if the tests do not run, do not continue with development!
+- **Test User Behavior, Not Implementation**: Test what users can do/see, not internal functions
+- **Prefer Integration Tests**: Test components and features working together, not isolated units
+
+## File Organization
+- Keep components in `src/components/`
+- API routes in `src/app/api/`
+- Constants and configuration in `src/constants.ts`
+- System prompts in `src/app/prompts.ts`
+- Global styles in `src/app/globals.css`
+
+## UI/UX Guidelines
+- Maintain the existing chat interface design
+- Keep the responsive design with max-width constraints
+- Preserve any loading states and disabled states
+- Maintain accessibility with proper ARIA labels and keyboard navigation
+
+## Environment
+- Run `nvm use` before running commands in this project
+
+## Playwright
+- Don't automatically open the report after running end-to-end tests
