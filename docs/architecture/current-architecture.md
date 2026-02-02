@@ -219,3 +219,73 @@ sequenceDiagram
     L->>P: Redirect to protected page
     P->>U: Display authenticated content
 ```
+
+## RAG Pipeline Architecture (Phase 1-2: Ingestion)
+
+```mermaid
+graph TB
+    subgraph "Document Ingestion (CLI)"
+        A[scripts/ingest.ts] --> B[parse.ts]
+        B --> C[chunking.ts]
+        C --> D[embeddings.ts]
+        D --> E[Database Insert]
+    end
+
+    subgraph "Parsing"
+        B --> F[Text Files]
+        B --> G[PDF Files]
+        F --> H[Raw Content]
+        G --> H
+    end
+
+    subgraph "Chunking"
+        H --> I[Semantic Boundaries]
+        I --> J[Size-based Fallback]
+        I --> K[Chunks with Line Numbers]
+        J --> K
+    end
+
+    subgraph "Embeddings"
+        K --> L[OpenAI text-embedding-3-small]
+        L --> M[1536-dim Vectors]
+    end
+
+    subgraph "Storage (Supabase/PostgreSQL)"
+        E --> N[documents table]
+        E --> O[chunks table with pgvector]
+    end
+
+    style A fill:#e1f5fe
+    style L fill:#fff3e0
+    style N fill:#e8f5e8
+    style O fill:#e8f5e8
+```
+
+### RAG Database Schema
+
+**documents table:**
+- `id` (UUID, PK)
+- `filename`, `originalName`, `storagePath`
+- `mimeType`, `fileSize`
+- `uploadedAt`, `uploadedBy`
+
+**chunks table:**
+- `id` (UUID, PK)
+- `documentId` (FK → documents)
+- `content`, `embedding` (vector 1536)
+- `chunkIndex`, `pageNumber`, `lineStart`, `lineEnd`
+- `metadata` (JSONB)
+- `createdAt`
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/db/schema.ts` | Drizzle schema definitions |
+| `src/db/index.ts` | Drizzle client initialization |
+| `src/lib/rag/types.ts` | TypeScript interfaces |
+| `src/lib/rag/parse.ts` | PDF/text file parsing |
+| `src/lib/rag/chunking.ts` | Semantic chunking logic |
+| `src/lib/rag/embeddings.ts` | OpenAI embedding generation |
+| `src/lib/rag/ingest.ts` | Orchestrates ingestion pipeline |
+| `scripts/ingest.ts` | CLI tool for document ingestion |
