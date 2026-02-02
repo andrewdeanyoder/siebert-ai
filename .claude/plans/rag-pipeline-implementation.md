@@ -113,6 +113,10 @@ Provide detailed RAG operation visibility for admin users. Currently, RAG failur
 - Whether to persist debug logs
 - Performance impact of collecting metrics
 
+### Phase 6: Cleanup
+- Check whether lint and types are running on the integration test files.
+- Review tested use cases in Phase 4 & 5. Tighten up or add assertions, if necessary.
+
 ---
 
 ## Context Injection Strategy
