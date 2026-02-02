@@ -30,12 +30,16 @@ export async function POST(req: Request) {
     let references: Reference[] = [];
 
     if (lastUserMessage?.content) {
+      console.log("[CHAT] Starting RAG retrieval for user message:", lastUserMessage.content.substring(0, 100));
       try {
         relevantChunks = await retrieveRelevantChunks(lastUserMessage.content);
         references = chunksToReferences(relevantChunks);
+        console.log("[CHAT] RAG retrieval complete. Chunks:", relevantChunks.length, "References:", references.length);
       } catch (ragError) {
         console.error('RAG retrieval failed, continuing without context:', ragError);
       }
+    } else {
+      console.log("[CHAT] No user message found for RAG retrieval");
     }
 
     // Build messages with optional context injection
