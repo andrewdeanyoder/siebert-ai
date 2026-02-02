@@ -31,8 +31,7 @@ async function main() {
         failCount++;
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error(`  ✗ Error: ${message}`);
+      console.error(`  ✗ Error:`, error);
       failCount++;
     }
 
