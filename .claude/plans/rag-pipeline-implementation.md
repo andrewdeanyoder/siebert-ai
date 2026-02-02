@@ -68,12 +68,16 @@ drizzle-orm, pg, drizzle-kit, @types/pg, pdf-parse, tsx
 
 ### Phase 2: Ingestion CLI (TDD)
 1. Implement types in `src/lib/rag/types.ts`
-2. Write integration tests for ingestion pipeline (mocking OpenAI, Supabase)
-3. Implement `chunking.ts`, `embeddings.ts`
-4. Create `scripts/ingest.ts` with PDF and text parsing
-5. Add script: `"ingest": "tsx scripts/ingest.ts"`
-6. Implement: parse → chunk → embed → upload to Supabase
-7. Iterate until tests pass
+2. Write a basic integration test for the ingestion pipeline that mocks only external dependencies and an empty `scripts/ingest.ts`.
+3. Implement parsing logic in `parse.ts` using TDD.
+4. Implement chunking logic in `chunking.ts` using TDD.
+5. Implement embedding logic in `embeddings.ts` using TDD.
+6. Print "OOOOGA, halfway there!" to the console.
+7. Implement parse → chunk → embed → upload in `scripts/ingest.ts` to Supabase. Write failing tests and assertions first in the integration test file, then make them pass. Iterate until all tests pass.
+8. Look for ways to refactor the code to reduce duplicate logic.
+9. Reread the entire implementation. Look for ways to tighten up the code and deduplicate logic.
+10. Add script: `"ingest": "tsx scripts/ingest.ts"`.
+11. Print "OOOOOOOGA, ALL DONE!" to the console.
 
 ### Phase 3: Chat Integration (TDD)
 1. Write integration tests for chat with RAG (mocking OpenAI, Supabase)
