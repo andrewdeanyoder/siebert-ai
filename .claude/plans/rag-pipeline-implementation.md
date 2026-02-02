@@ -59,14 +59,14 @@ drizzle-orm, pg, drizzle-kit, @types/pg, pdf-parse, tsx
 
 ## Implementation Phases
 
-### Phase 1: Database Foundation
+### Phase 1: Database Foundation DONE
 1. Install Drizzle ORM dependencies
 2. Create `drizzle.config.ts` and `src/db/schema.ts`
 3. Enable pgvector extension in Supabase: `create extension if not exists vector;`
 4. Run `pnpm drizzle-kit push` to create tables
 5. Create Supabase Storage bucket for documents
 
-### Phase 2: Ingestion CLI (TDD)
+### Phase 2: Ingestion CLI (TDD) DONE
 1. Implement types in `src/lib/rag/types.ts`
 2. Write a basic integration test for the ingestion pipeline that mocks only external dependencies and an empty `scripts/ingest.ts`.
 3. Implement parsing logic in `parse.ts` using TDD.
@@ -79,7 +79,7 @@ drizzle-orm, pg, drizzle-kit, @types/pg, pdf-parse, tsx
 10. Add script: `"ingest": "tsx scripts/ingest.ts"`.
 11. Print "OOOOOOOGA, ALL DONE!" to the console.
 
-### Phase 3: Chat Integration (TDD)
+### Phase 3: Chat Integration (TDD) DONE
 1. Write integration tests for chat with RAG (mocking OpenAI, Supabase)
 2. Implement `retrieval.ts`, `context.ts`
 3. Modify `/api/chat/route.ts`:
@@ -94,6 +94,24 @@ drizzle-orm, pg, drizzle-kit, @types/pg, pdf-parse, tsx
 3. Update `Messages.tsx` to render References for assistant messages
 4. Update Message type to include optional references
 5. Iterate until tests pass
+
+### Phase 5: Admin Debugging Information
+Provide detailed RAG operation visibility for admin users. Currently, RAG failures are silent (logged server-side only, UI receives empty references array indistinguishable from "no matches").
+
+**Potential use cases (to be brainstormed):**
+- RAG operation status (success, error, no matches)
+- Error messages when retrieval fails
+- Similarity scores for returned chunks
+- Query embedding latency
+- Database query latency
+- Number of chunks searched vs returned
+- Threshold/limit values used
+
+**Implementation considerations (to be determined):**
+- How to identify admin users
+- Where to display debug info (UI panel, console, separate endpoint)
+- Whether to persist debug logs
+- Performance impact of collecting metrics
 
 ---
 

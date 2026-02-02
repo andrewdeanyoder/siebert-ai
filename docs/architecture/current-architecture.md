@@ -288,4 +288,77 @@ graph TB
 | `src/lib/rag/chunking.ts` | Semantic chunking logic |
 | `src/lib/rag/embeddings.ts` | OpenAI embedding generation |
 | `src/lib/rag/ingest.ts` | Orchestrates ingestion pipeline |
+| `src/lib/rag/retrieval.ts` | Vector similarity search |
+| `src/lib/rag/context.ts` | Context formatting for chat |
 | `scripts/ingest.ts` | CLI tool for document ingestion |
+
+## RAG Pipeline Architecture (Phase 3: Chat Integration)
+
+```mermaid
+graph TB
+    subgraph "Chat API with RAG"
+        A[User Message] --> B[api/chat/route.ts]
+        B --> C[retrieval.ts]
+        C --> D[Generate Query Embedding]
+        D --> E[pgvector Similarity Search]
+        E --> F[Filter by SIMILARITY_THRESHOLD]
+        F --> G[Limit to MAX_RETRIEVAL_CHUNKS]
+        G --> H[context.ts]
+        H --> I[Format Context Message]
+        I --> J[Inject after SYSTEM_PROMPT]
+        J --> K[OpenAI generateText]
+        K --> L[Response with References]
+    end
+
+    subgraph "Context Injection"
+        M[SYSTEM_PROMPT] --> N[Messages Array]
+        I --> N
+        O[Conversation History] --> N
+        N --> K
+    end
+
+    subgraph "Response"
+        L --> P[Assistant Message]
+        L --> Q[References Array]
+        Q --> R[documentName, pageNumber, snippet]
+    end
+
+    style A fill:#fff3e0
+    style C fill:#e1f5fe
+    style K fill:#fff3e0
+    style Q fill:#e8f5e8
+```
+
+### Chat RAG Data Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Chat API
+    participant R as retrieval.ts
+    participant DB as PostgreSQL/pgvector
+    participant CTX as context.ts
+    participant AI as OpenAI
+
+    U->>C: POST /api/chat (messages)
+    C->>R: retrieveRelevantChunks(query)
+    R->>AI: embed(query)
+    AI->>R: queryEmbedding
+    R->>DB: SELECT chunks with cosine similarity > threshold
+    DB->>R: relevant chunks (sorted, limited)
+    R->>C: RetrievedChunk[]
+    C->>CTX: formatContextMessage(chunks)
+    CTX->>C: context string
+    C->>CTX: chunksToReferences(chunks)
+    CTX->>C: Reference[]
+    C->>AI: generateText([SYSTEM_PROMPT, context, ...messages])
+    AI->>C: response text
+    C->>U: { content, references }
+```
+
+### Graceful Degradation
+
+If RAG retrieval fails (embedding error, database error), the chat API continues without context injection:
+- Logs error for debugging
+- Returns empty references array
+- Chat functions normally using only the system prompt
