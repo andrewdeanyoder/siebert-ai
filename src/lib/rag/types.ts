@@ -1,5 +1,11 @@
+export interface PageContent {
+  pageNumber: number;
+  text: string;
+}
+
 export interface ParsedDocument {
   content: string;
+  pages?: PageContent[];
   metadata: DocumentMetadata;
 }
 

@@ -57,16 +57,41 @@ describe("Document Ingestion Pipeline", () => {
   });
 
   describe("text file ingestion", () => {
-    it("should parse, chunk, embed, and store a text file", async () => {
-      // Arrange
-      const textContent = `Chapter 1: The Cell
+    it("should parse, chunk, embed, and store a text file using semantic markers", async () => {
+      // Arrange - content with all semantic markers: Chapter, Section, numbered (1.)
+      // Content is under 1000 chars so all segments merge into one chunk
+      const textContent = `Chapter 1: Introduction
 
-The cell is the basic unit of life. All living organisms are composed of cells.
+This is the introduction to anatomy.
 
-Chapter 2: Cell Membrane
+Section A: Cell Biology
 
-The cell membrane is a selectively permeable barrier that surrounds the cell.
-It controls what enters and exits the cell.`;
+Cells are the basic unit of life.
+
+1. Cell Membrane
+
+The cell membrane surrounds the cell.
+
+2. Nucleus
+
+The nucleus contains DNA.`;
+
+      // Expected: all segments merge into 1 chunk (total ~250 chars, under 1000 char limit)
+      const expectedChunkContent = `Chapter 1: Introduction
+
+This is the introduction to anatomy.
+
+Section A: Cell Biology
+
+Cells are the basic unit of life.
+
+1. Cell Membrane
+
+The cell membrane surrounds the cell.
+
+2. Nucleus
+
+The nucleus contains DNA.`;
 
       const testFilePath = path.join(TEST_DIR, "anatomy-notes.txt");
       await fs.writeFile(testFilePath, textContent);
@@ -74,11 +99,7 @@ It controls what enters and exits the cell.`;
       const mockDocumentId = "doc-123";
       mockReturning.mockResolvedValue([{ id: mockDocumentId }]);
 
-      const mockEmbeddings = [
-        new Array(1536).fill(0.1),
-        new Array(1536).fill(0.2),
-        new Array(1536).fill(0.3),
-      ];
+      const mockEmbeddings = [new Array(1536).fill(0.1)];
       mockEmbedMany.mockResolvedValue({ embeddings: mockEmbeddings });
 
       // Act
@@ -87,7 +108,7 @@ It controls what enters and exits the cell.`;
       // Assert - result
       expect(result.success).toBe(true);
       expect(result.documentId).toBe(mockDocumentId);
-      expect(result.chunksCreated).toBeGreaterThan(0);
+      expect(result.chunksCreated).toBe(1);
 
       // Assert - document insertion
       expect(mockInsert).toHaveBeenCalledWith(documents);
@@ -104,22 +125,69 @@ It controls what enters and exits the cell.`;
       expect(mockEmbedding).toHaveBeenCalledWith("text-embedding-3-small");
       expect(mockEmbedMany).toHaveBeenCalledWith({
         model: "mocked-embedding-model",
-        values: expect.arrayContaining([expect.stringContaining("cell")]),
+        values: [expectedChunkContent],
       });
 
       // Assert - chunks insertion
       expect(mockInsert).toHaveBeenCalledWith(chunks);
       const chunksInsertCall = mockValues.mock.calls[1]?.[0];
       expect(Array.isArray(chunksInsertCall)).toBe(true);
-      expect(chunksInsertCall.length).toBeGreaterThan(0);
+      expect(chunksInsertCall.length).toBe(1);
 
       const firstChunk = chunksInsertCall[0];
       expect(firstChunk).toMatchObject({
         documentId: mockDocumentId,
         chunkIndex: 0,
+        content: expectedChunkContent,
       });
-      expect(firstChunk.content).toBeTruthy();
       expect(firstChunk.embedding).toEqual(mockEmbeddings[0]);
+
+      // Assert - text files have line numbers, not page numbers
+      expect(firstChunk.lineStart).toBe(1);
+      expect(firstChunk.lineEnd).toBe(15);
+      expect(firstChunk.pageNumber).toBeUndefined();
+      expect(firstChunk.metadata).toBeUndefined();
+    });
+
+    it("should create multiple chunks when content exceeds chunk size", async () => {
+      // Arrange - create content with 2 large sections (each > 500 chars)
+      // so they exceed the 1000 char limit when combined
+      const section1 = "Chapter 1: Introduction\n\n" + "A".repeat(600);
+      const section2 = "Chapter 2: Details\n\n" + "B".repeat(600);
+      const textContent = `${section1}\n\n${section2}`;
+
+      const testFilePath = path.join(TEST_DIR, "large-doc.txt");
+      await fs.writeFile(testFilePath, textContent);
+
+      const mockDocumentId = "doc-456";
+      mockReturning.mockResolvedValue([{ id: mockDocumentId }]);
+
+      // Expect 2 chunks (one per chapter since each exceeds size when combined)
+      const mockEmbeddings = [
+        new Array(1536).fill(0.1),
+        new Array(1536).fill(0.2),
+      ];
+      mockEmbedMany.mockResolvedValue({ embeddings: mockEmbeddings });
+
+      // Act
+      const result = await ingestDocument(testFilePath);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.chunksCreated).toBe(2);
+
+      const chunksInsertCall = mockValues.mock.calls[1]?.[0];
+      expect(chunksInsertCall.length).toBe(2);
+
+      // First chunk should contain Chapter 1 content
+      expect(chunksInsertCall[0].content).toContain("Chapter 1");
+      expect(chunksInsertCall[0].content).toContain("AAA");
+      expect(chunksInsertCall[0].chunkIndex).toBe(0);
+
+      // Second chunk should contain Chapter 2 content (with some overlap from Chapter 1)
+      expect(chunksInsertCall[1].content).toContain("Chapter 2");
+      expect(chunksInsertCall[1].content).toContain("BBB");
+      expect(chunksInsertCall[1].chunkIndex).toBe(1);
     });
 
     it("should track line numbers for text file chunks", async () => {
@@ -210,6 +278,26 @@ startxref
         originalName: "test.pdf",
         mimeType: "application/pdf",
       });
+
+      // Assert - chunks insertion for PDF
+      expect(mockInsert).toHaveBeenCalledWith(chunks);
+      const chunksInsertCall = mockValues.mock.calls[1]?.[0];
+      expect(Array.isArray(chunksInsertCall)).toBe(true);
+      expect(chunksInsertCall.length).toBeGreaterThan(0);
+
+      const firstChunk = chunksInsertCall[0];
+      expect(firstChunk).toMatchObject({
+        documentId: mockDocumentId,
+        chunkIndex: 0,
+      });
+      expect(firstChunk.content).toBeTruthy();
+      expect(firstChunk.embedding).toEqual([...new Array(1536).fill(0.1)]);
+
+      // Assert - PDFs have page numbers, not line numbers
+      expect(firstChunk.pageNumber).toBe(1);
+      expect(firstChunk.lineStart).toBeUndefined();
+      expect(firstChunk.lineEnd).toBeUndefined();
+      expect(firstChunk.metadata).toBeUndefined();
     });
   });
 

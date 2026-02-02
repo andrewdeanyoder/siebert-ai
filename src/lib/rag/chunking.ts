@@ -1,4 +1,4 @@
-import type { Chunk, ParsedDocument } from "./types";
+import type { Chunk, PageContent, ParsedDocument } from "./types";
 
 const DEFAULT_CHUNK_SIZE = 1000;
 const DEFAULT_CHUNK_OVERLAP = 200;
@@ -15,7 +15,7 @@ export function chunkDocument(
   const { chunkSize = DEFAULT_CHUNK_SIZE, chunkOverlap = DEFAULT_CHUNK_OVERLAP } =
     options;
 
-  const { content } = document;
+  const { content, pages } = document;
 
   if (!content.trim()) {
     return [];
@@ -26,13 +26,31 @@ export function chunkDocument(
   // Try semantic chunking first (by paragraphs/sections)
   const semanticChunks = splitBySemanticBoundaries(content);
 
+  let chunks: Chunk[];
   if (semanticChunks.length > 1) {
     // Use semantic chunks if we found meaningful boundaries
-    return createChunksFromSegments(semanticChunks, lines, chunkSize, chunkOverlap);
+    chunks = createChunksFromSegments(semanticChunks, lines, chunkSize, chunkOverlap);
+  } else {
+    // Fall back to size-based chunking
+    chunks = createSizeBasedChunks(content, lines, chunkSize, chunkOverlap);
   }
 
-  // Fall back to size-based chunking
-  return createSizeBasedChunks(content, lines, chunkSize, chunkOverlap);
+  // Add page numbers for PDFs (and remove line numbers since they don't apply)
+  if (pages && pages.length > 0) {
+    return chunks.map((chunk) => {
+      const pdfChunk: Chunk = {
+        content: chunk.content,
+        chunkIndex: chunk.chunkIndex,
+        pageNumber: findPageNumber(chunk.content, pages),
+      };
+      if (chunk.metadata) {
+        pdfChunk.metadata = chunk.metadata;
+      }
+      return pdfChunk;
+    });
+  }
+
+  return chunks;
 }
 
 function splitBySemanticBoundaries(content: string): string[] {
@@ -162,4 +180,20 @@ function findLineNumbers(
 function getOverlapText(text: string, overlapSize: number): string {
   if (text.length <= overlapSize) return text;
   return text.slice(-overlapSize);
+}
+
+function findPageNumber(chunkContent: string, pages: PageContent[]): number {
+  // Find the first line of the chunk to search for
+  const firstLine = chunkContent.split("\n")[0]?.trim();
+  if (!firstLine) return 1;
+
+  // Search for which page contains this content
+  for (const page of pages) {
+    if (page.text.includes(firstLine)) {
+      return page.pageNumber;
+    }
+  }
+
+  // Fallback: return page 1 if not found
+  return 1;
 }

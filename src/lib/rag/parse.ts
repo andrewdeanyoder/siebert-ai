@@ -51,9 +51,16 @@ async function parsePdfFile(
   const parser = new PDFParse(uint8Array);
   const textResult = await parser.getText();
 
+  // Extract per-page content for page number tracking
+  const pages = textResult.pages.map((page, index) => ({
+    pageNumber: index + 1,
+    text: page.text,
+  }));
+
   // todo: add support for extracting images from the Pdfs
   return {
     content: textResult.text,
+    pages,
     metadata: {
       filename,
       mimeType: "application/pdf",
