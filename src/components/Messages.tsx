@@ -1,8 +1,14 @@
 import { Message } from "ai";
 import { useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import References from "./References";
+import type { Reference } from "#/lib/rag/types";
 
-export default function Messages({ messages }: { messages: Message[] }) {
+export interface MessageWithReferences extends Message {
+  references?: Reference[];
+}
+
+export default function Messages({ messages }: { messages: MessageWithReferences[] }) {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = () => {
@@ -28,6 +34,9 @@ export default function Messages({ messages }: { messages: Message[] }) {
               <ReactMarkdown>{msg.content}</ReactMarkdown>
             </div>
           </div>
+          {msg.role === "assistant" && msg.references && msg.references.length > 0 && (
+            <References references={msg.references} />
+          )}
         </div>
       ))}
       <div ref={messagesEndRef} />

@@ -88,8 +88,9 @@ drizzle-orm, pg, drizzle-kit, @types/pg, pdf-parse, tsx
    - Return references array with response
 4. Iterate until tests pass
 
-### Phase 4: References UI (TDD)
-1. Write component tests for Messages with References
+### Phase 4: References UI (TDD) DONE
+1. Write a component test for `Messages.tsx` which asserts on the already implemented functionality. Make sure the test passes.
+2. Add assertions for the newly planned References functionality. Make sure only the new assertions fail (Red version of TDD)
 2. Create `src/components/References.tsx` (collapsible)
 3. Update `Messages.tsx` to render References for assistant messages
 4. Update Message type to include optional references

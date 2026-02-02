@@ -1,7 +1,6 @@
 "use client"
 import React, { useState } from "react";
-import Messages from "./Messages";
-import type { Message } from "ai/react";
+import Messages, { type MessageWithReferences } from "./Messages";
 import { MODEL } from "../lib/constants";
 import { LAST_UPDATED } from "../app/prompts";
 import submitMessages from "../lib/http/submitMessages";
@@ -15,7 +14,7 @@ export enum TtsMethod {
 }
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageWithReferences[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [ttsMethod, setTtsMethod] = useState<TtsMethod>(TtsMethod.Deepgram);
@@ -29,7 +28,7 @@ const Chat: React.FC = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage: Message = {
+    const userMessage: MessageWithReferences = {
       id: Date.now().toString(),
       role: "user",
       content: input,

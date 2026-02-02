@@ -1,7 +1,12 @@
-import { Message } from "ai/react";
+import type { MessageWithReferences } from "#/components/Messages";
 
-export default async function submitMessages(messages: Message[], userMessage: Message, setMessages: React.Dispatch<React.SetStateAction<Message[]>>, setIsLoading: React.Dispatch<React.SetStateAction<boolean>>) {
-  let newMessage: Message;
+export default async function submitMessages(
+  messages: MessageWithReferences[],
+  userMessage: MessageWithReferences,
+  setMessages: React.Dispatch<React.SetStateAction<MessageWithReferences[]>>,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+) {
+  let newMessage: MessageWithReferences;
 
   try {
     const response = await fetch("/api/chat", {

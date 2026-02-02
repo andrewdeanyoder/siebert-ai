@@ -362,3 +362,40 @@ If RAG retrieval fails (embedding error, database error), the chat API continues
 - Logs error for debugging
 - Returns empty references array
 - Chat functions normally using only the system prompt
+
+## RAG Pipeline Architecture (Phase 4: References UI)
+
+```mermaid
+graph TB
+    subgraph "References UI Component"
+        A[Messages.tsx] --> B[MessageWithReferences]
+        B --> C[References.tsx]
+        C --> D[Collapsible Toggle]
+        D --> E[Reference List]
+        E --> F[Expandable Snippets]
+    end
+
+    subgraph "Data Flow"
+        G[API Response] --> H[submitMessages.ts]
+        H --> I[Chat.tsx State]
+        I --> A
+    end
+
+    subgraph "Reference Display"
+        E --> J[Document Name]
+        E --> K[Page Number / Line Range]
+        F --> L[Source Snippet]
+    end
+
+    style A fill:#e1f5fe
+    style C fill:#f3e5f5
+    style G fill:#fff3e0
+```
+
+### References Component Behavior
+
+- **Collapsed by default**: Shows source count (e.g., "3 sources")
+- **Expandable list**: Click toggle to see reference list
+- **Expandable snippets**: Click individual reference to see source text
+- **Location info**: Shows page number (PDFs) or line range (text files)
+- **Independent per message**: Each assistant message has its own References section
