@@ -27,6 +27,9 @@ d. [ ] Create project-specific commands (like `/test-auth` or `/run-e2e`)
 e. [ ] Install GitHub CLI (`brew install gh && gh auth login`) for PR/issue commands
 f. [ ] Refine guidelines for what is a feat, chore, etc. in the commit skill
 
+### 4.1 Enable Browser verification
+a. [ ] Install the Claude in Chrome extension https://code.claude.com/docs/en/chrome
+
 ### 5. Renable auto completes
 a. [ ] explore using claude code terminal inside cursor just for the autocompletes
 b. [ ] claude extension work inside cursor?
