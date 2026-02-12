@@ -1,19 +1,11 @@
 import type { Chunk, PageContent, ParsedDocument } from "./types";
-
-const DEFAULT_CHUNK_SIZE = 1000;
-const DEFAULT_CHUNK_OVERLAP = 200;
-
-interface ChunkingOptions {
-  chunkSize?: number;
-  chunkOverlap?: number;
-}
+import { DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP } from "../constants";
 
 export function chunkDocument(
   document: ParsedDocument,
-  options: ChunkingOptions = {}
 ): Chunk[] {
-  const { chunkSize = DEFAULT_CHUNK_SIZE, chunkOverlap = DEFAULT_CHUNK_OVERLAP } =
-    options;
+  const chunkSize = DEFAULT_CHUNK_SIZE;
+  const chunkOverlap = DEFAULT_CHUNK_OVERLAP;
 
   const { content, pages } = document;
 
