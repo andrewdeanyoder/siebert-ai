@@ -328,17 +328,17 @@ startxref
       const result = await ingestDocument(testFilePath);
 
       // Assert
-      expect(result.success).toBe(true);
-      expect(result.chunksCreated).toBe(0);
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('zero chunks created');
 
       // Assert - document should still be inserted
-      expect(mockInsert).toHaveBeenCalledWith(documents);
+      expect(mockInsert).not.toHaveBeenCalledWith(documents);
 
       // Assert - embedMany should NOT be called for empty content
       expect(mockEmbedMany).not.toHaveBeenCalled();
 
-      // Assert - chunks should NOT be inserted for empty content
-      expect(mockInsert).toHaveBeenCalledTimes(1); // Only documents, not chunks
+      // Assert - chunks and documents should NOT be inserted for empty content
+      expect(mockInsert).toHaveBeenCalledTimes(0);
     });
 
     it("should handle non-existent files", async () => {
