@@ -95,6 +95,9 @@ drizzle-orm, pg, drizzle-kit, @types/pg, pdf-parse, tsx
 3. Update `Messages.tsx` to render References for assistant messages
 4. Update Message type to include optional references
 5. Iterate until tests pass
+6. Add similarity score to references
+7. If no references are returned, send the top 3 chunks
+8. If an error occurs, send that error in References property
 
 ### Phase 5: Admin Debugging Information
 Provide detailed RAG operation visibility for admin users. Currently, RAG failures are silent (logged server-side only, UI receives empty references array indistinguishable from "no matches").
@@ -117,6 +120,11 @@ Provide detailed RAG operation visibility for admin users. Currently, RAG failur
 ### Phase 6: Cleanup
 - Check whether lint and types are running on the integration test files.
 - Review tested use cases in Phase 4 & 5. Tighten up or add assertions, if necessary.
+
+### Phase 7: Iterate
+- Move RAG lookup to a tool so it doesn't have to look up every time.
+- Make chunk boundaries match the characters that Justin is using.
+- TBD
 
 ---
 
