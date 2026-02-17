@@ -2,11 +2,12 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 import Messages from "../../src/components/Messages";
 import type { Message } from "ai";
-import type { Reference } from "../../src/lib/rag/types";
+import type { Reference, RagError } from "../../src/lib/rag/types";
 
 // Extended message type with optional references
 interface MessageWithReferences extends Message {
   references?: Reference[];
+  ragError?: RagError;
 }
 
 describe("Messages component", () => {
@@ -263,6 +264,78 @@ describe("Messages component", () => {
       expect(toggles).toHaveLength(2);
       expect(toggles[0]).toHaveTextContent(/1 source/i);
       expect(toggles[1]).toHaveTextContent(/2 sources/i);
+    });
+  });
+
+  describe("with RAG errors", () => {
+    it("renders References section when ragError is present even with no references", () => {
+      const messages: MessageWithReferences[] = [
+        {
+          id: "1",
+          role: "assistant",
+          content: "Response without context.",
+          references: [],
+          ragError: { message: "Embedding API failed" },
+        },
+      ];
+
+      render(<Messages messages={messages} />);
+
+      expect(screen.getByText(/Retrieval error/i)).toBeInTheDocument();
+    });
+
+    it("displays the error message in the References section", () => {
+      const messages: MessageWithReferences[] = [
+        {
+          id: "1",
+          role: "assistant",
+          content: "Response without context.",
+          ragError: { message: "Connection to database failed" },
+        },
+      ];
+
+      render(<Messages messages={messages} />);
+
+      expect(screen.getByText(/Connection to database failed/)).toBeInTheDocument();
+    });
+
+    it("shows collapsible stack trace when stack is provided", () => {
+      const messages: MessageWithReferences[] = [
+        {
+          id: "1",
+          role: "assistant",
+          content: "Response without context.",
+          ragError: {
+            message: "Embedding API failed",
+            stack: "Error: Embedding API failed\n    at retrieveChunks (retrieval.ts:42)",
+          },
+        },
+      ];
+
+      render(<Messages messages={messages} />);
+
+      // Stack trace should be hidden by default
+      expect(screen.queryByText(/at retrieveChunks/)).not.toBeInTheDocument();
+
+      // Click to expand stack trace
+      fireEvent.click(screen.getByRole("button", { name: /stack trace/i }));
+
+      expect(screen.getByText(/at retrieveChunks/)).toBeInTheDocument();
+    });
+
+    it("does not render stack trace toggle when stack is not provided", () => {
+      const messages: MessageWithReferences[] = [
+        {
+          id: "1",
+          role: "assistant",
+          content: "Response without context.",
+          ragError: { message: "Something went wrong" },
+        },
+      ];
+
+      render(<Messages messages={messages} />);
+
+      expect(screen.queryByRole("button", { name: /stack trace/i })).not.toBeInTheDocument();
     });
   });
 });

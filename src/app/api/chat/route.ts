@@ -4,7 +4,7 @@ import { SYSTEM_PROMPT } from "../../prompts";
 import { MODEL } from "../../../lib/constants";
 import { retrieveRelevantChunks } from "#/lib/rag/retrieval";
 import { formatContextMessage, chunksToReferences } from "#/lib/rag/context";
-import type { Reference, RetrievedChunk } from "#/lib/rag/types";
+import type { RagError, Reference, RetrievedChunk } from "#/lib/rag/types";
 
 export async function POST(req: Request) {
   // Check if OpenAI API key is configured
@@ -29,6 +29,7 @@ export async function POST(req: Request) {
     // Retrieve relevant chunks (gracefully degrade on error)
     let relevantChunks: RetrievedChunk[] = [];
     let references: Reference[] = [];
+    let ragError: RagError | undefined;
 
     if (lastUserMessage?.content) {
       console.log("[CHAT] Starting RAG retrieval for user message:", lastUserMessage.content.substring(0, 100));
@@ -36,8 +37,12 @@ export async function POST(req: Request) {
         relevantChunks = await retrieveRelevantChunks(lastUserMessage.content);
         references = chunksToReferences(relevantChunks);
         console.log("[CHAT] RAG retrieval complete. Chunks:", relevantChunks.length, "References:", references.length);
-      } catch (ragError) {
-        console.error('RAG retrieval failed, continuing without context:', ragError);
+      } catch (error) {
+        console.error('RAG retrieval failed, continuing without context:', error);
+        ragError = {
+          message: error instanceof Error ? error.message : String(error),
+          ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
+        };
       }
     } else {
       console.log("[CHAT] No user message found for RAG retrieval");
@@ -63,6 +68,7 @@ export async function POST(req: Request) {
       role: "assistant",
       content: response.text,
       references,
+      ...(ragError && { ragError }),
     });
   } catch (e) {
     console.error('error in chat route', e);

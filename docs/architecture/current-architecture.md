@@ -360,8 +360,9 @@ sequenceDiagram
 
 If RAG retrieval fails (embedding error, database error), the chat API continues without context injection:
 - Logs error for debugging
-- Returns empty references array
+- Returns `ragError: { message, stack? }` alongside an empty references array
 - Chat functions normally using only the system prompt
+- The `References` component displays the error message and a collapsible stack trace for debugging
 
 ## RAG Pipeline Architecture (Phase 4: References UI)
 

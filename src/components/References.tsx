@@ -1,18 +1,47 @@
 "use client";
 
 import { useState } from "react";
-import type { Reference } from "#/lib/rag/types";
+import type { Reference, RagError } from "#/lib/rag/types";
 
 interface ReferencesProps {
   references: Reference[];
+  ragError?: RagError;
 }
 
-export default function References({ references }: ReferencesProps) {
+export default function References({ references, ragError }: ReferencesProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [isStackExpanded, setIsStackExpanded] = useState(false);
 
-  if (references.length === 0) {
+  if (references.length === 0 && !ragError) {
     return null;
+  }
+
+  if (ragError) {
+    return (
+      <div className="mt-3 border-t border-gray-700 pt-3">
+        <div className="text-sm text-red-400">
+          <span>Retrieval error: {ragError.message}</span>
+        </div>
+        {ragError.stack && (
+          <>
+            <button
+              onClick={() => setIsStackExpanded(!isStackExpanded)}
+              className="text-xs text-gray-400 hover:text-gray-200 mt-1 flex items-center gap-1"
+              aria-label="Stack trace"
+            >
+              <span>{isStackExpanded ? "▼" : "▶"}</span>
+              Stack trace
+            </button>
+            {isStackExpanded && (
+              <pre className="mt-1 p-2 bg-gray-800 rounded text-gray-300 text-xs overflow-x-auto whitespace-pre-wrap">
+                {ragError.stack}
+              </pre>
+            )}
+          </>
+        )}
+      </div>
+    );
   }
 
   const sourceLabel = references.length === 1 ? "1 source" : `${references.length} sources`;

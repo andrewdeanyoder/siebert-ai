@@ -65,3 +65,8 @@ export interface Reference {
   snippet: string;
   similarity: number;
 }
+
+export interface RagError {
+  message: string;
+  stack?: string;
+}
