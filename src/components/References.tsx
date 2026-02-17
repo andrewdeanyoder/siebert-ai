@@ -54,6 +54,7 @@ export default function References({ references }: ReferencesProps) {
                   <span className="text-xs">{isReferenceExpanded ? "▼" : "▶"}</span>
                   <span>{ref.documentName}</span>
                   {location && <span className="text-gray-500">({location})</span>}
+                  <span className="text-gray-500">{Math.round(ref.similarity * 100)}% match</span>
                 </button>
 
                 {isReferenceExpanded && (

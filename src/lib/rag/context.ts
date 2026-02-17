@@ -31,6 +31,7 @@ export function chunksToReferences(chunks: RetrievedChunk[]): Reference[] {
     const ref: Reference = {
       documentName: chunk.documentName,
       snippet: chunk.content,
+      similarity: chunk.similarity,
     };
     if (chunk.pageNumber !== undefined) {
       ref.pageNumber = chunk.pageNumber;

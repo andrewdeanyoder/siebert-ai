@@ -82,6 +82,7 @@ describe("Messages component", () => {
               documentName: "anatomy.pdf",
               pageNumber: 10,
               snippet: "The heart has four chambers: two atria and two ventricles.",
+              similarity: 0.85,
             },
           ],
         },
@@ -121,9 +122,9 @@ describe("Messages component", () => {
           role: "assistant",
           content: "Here is the information.",
           references: [
-            { documentName: "doc1.pdf", pageNumber: 1, snippet: "Content 1" },
-            { documentName: "doc2.pdf", pageNumber: 5, snippet: "Content 2" },
-            { documentName: "doc3.pdf", pageNumber: 10, snippet: "Content 3" },
+            { documentName: "doc1.pdf", pageNumber: 1, snippet: "Content 1", similarity: 0.9 },
+            { documentName: "doc2.pdf", pageNumber: 5, snippet: "Content 2", similarity: 0.8 },
+            { documentName: "doc3.pdf", pageNumber: 10, snippet: "Content 3", similarity: 0.7 },
           ],
         },
       ];
@@ -148,6 +149,7 @@ describe("Messages component", () => {
               documentName: "anatomy.pdf",
               pageNumber: 15,
               snippet: "The detailed anatomy content.",
+              similarity: 0.92,
             },
           ],
         },
@@ -172,6 +174,7 @@ describe("Messages component", () => {
               documentName: "anatomy.pdf",
               pageNumber: 15,
               snippet: "The detailed anatomy content.",
+              similarity: 0.92,
             },
           ],
         },
@@ -197,6 +200,7 @@ describe("Messages component", () => {
               lineStart: 10,
               lineEnd: 25,
               snippet: "Text file content.",
+              similarity: 0.75,
             },
           ],
         },
@@ -209,13 +213,37 @@ describe("Messages component", () => {
       expect(screen.getByText(/Lines 10-25/)).toBeInTheDocument();
     });
 
+    it("displays similarity score as percentage when reference is expanded", () => {
+      const messages: MessageWithReferences[] = [
+        {
+          id: "1",
+          role: "assistant",
+          content: "Here is the information.",
+          references: [
+            {
+              documentName: "anatomy.pdf",
+              pageNumber: 15,
+              snippet: "The detailed anatomy content.",
+              similarity: 0.85,
+            },
+          ],
+        },
+      ];
+
+      render(<Messages messages={messages} />);
+
+      fireEvent.click(screen.getByRole("button", { name: /1 source/i }));
+
+      expect(screen.getByText(/85% match/)).toBeInTheDocument();
+    });
+
     it("renders independent References sections for multiple assistant messages", () => {
       const messages: MessageWithReferences[] = [
         {
           id: "1",
           role: "assistant",
           content: "First answer.",
-          references: [{ documentName: "doc1.pdf", pageNumber: 1, snippet: "Snippet 1" }],
+          references: [{ documentName: "doc1.pdf", pageNumber: 1, snippet: "Snippet 1", similarity: 0.9 }],
         },
         { id: "2", role: "user", content: "Another question" },
         {
@@ -223,8 +251,8 @@ describe("Messages component", () => {
           role: "assistant",
           content: "Second answer.",
           references: [
-            { documentName: "doc2.pdf", pageNumber: 5, snippet: "Snippet 2" },
-            { documentName: "doc3.pdf", pageNumber: 10, snippet: "Snippet 3" },
+            { documentName: "doc2.pdf", pageNumber: 5, snippet: "Snippet 2", similarity: 0.85 },
+            { documentName: "doc3.pdf", pageNumber: 10, snippet: "Snippet 3", similarity: 0.7 },
           ],
         },
       ];

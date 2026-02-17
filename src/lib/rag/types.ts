@@ -63,4 +63,5 @@ export interface Reference {
   lineStart?: number;
   lineEnd?: number;
   snippet: string;
+  similarity: number;
 }

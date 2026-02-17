@@ -131,6 +131,7 @@ describe("Chat API with RAG", () => {
       documentName: "anatomy-textbook.pdf",
       pageNumber: 1,
       snippet: "The heart has four chambers.",
+      similarity: 0.85,
     });
 
     // Assert - embed was called with user query

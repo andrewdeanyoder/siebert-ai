@@ -320,7 +320,7 @@ graph TB
     subgraph "Response"
         L --> P[Assistant Message]
         L --> Q[References Array]
-        Q --> R[documentName, pageNumber, snippet]
+        Q --> R[documentName, pageNumber, snippet, similarity]
     end
 
     style A fill:#fff3e0
@@ -384,6 +384,7 @@ graph TB
     subgraph "Reference Display"
         E --> J[Document Name]
         E --> K[Page Number / Line Range]
+        E --> M2[Similarity Score]
         F --> L[Source Snippet]
     end
 
@@ -398,4 +399,5 @@ graph TB
 - **Expandable list**: Click toggle to see reference list
 - **Expandable snippets**: Click individual reference to see source text
 - **Location info**: Shows page number (PDFs) or line range (text files)
+- **Similarity score**: Shows match percentage (e.g., "85% match")
 - **Independent per message**: Each assistant message has its own References section
