@@ -8,7 +8,7 @@ config({ path: ".env.local" });
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false }, // TODO: do we need to tighten this up?
 });
 
 export const db = drizzle(pool, { schema });

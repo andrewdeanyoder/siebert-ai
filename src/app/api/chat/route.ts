@@ -5,9 +5,6 @@ import { MODEL } from "../../../lib/constants";
 import { retrieveRelevantChunks } from "#/lib/rag/retrieval";
 import { formatContextMessage, chunksToReferences } from "#/lib/rag/context";
 import type { RagError, Reference, RetrievedChunk } from "#/lib/rag/types";
-import { config } from "dotenv"
-
-config({ path: ".env.local" });
 
 export async function POST(req: Request) {
   // Check if OpenAI API key is configured
@@ -20,7 +17,6 @@ export async function POST(req: Request) {
     );
   }
 
-  console.log('DATABASE_URL', process.env.DATABASE_URL);
   try {
     const { messages } = await req.json();
 
