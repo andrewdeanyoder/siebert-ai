@@ -68,5 +68,4 @@ export interface Reference {
 
 export interface RagError {
   message: string;
-  stack?: string;
 }

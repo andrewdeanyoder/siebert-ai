@@ -41,7 +41,6 @@ export async function POST(req: Request) {
         console.error('RAG retrieval failed, continuing without context:', error);
         ragError = {
           message: error instanceof Error ? error.message : String(error),
-          ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
         };
       }
     } else {

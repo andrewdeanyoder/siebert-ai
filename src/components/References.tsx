@@ -11,8 +11,6 @@ interface ReferencesProps {
 export default function References({ references, ragError }: ReferencesProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const [isStackExpanded, setIsStackExpanded] = useState(false);
-
   if (references.length === 0 && !ragError) {
     return null;
   }
@@ -23,23 +21,6 @@ export default function References({ references, ragError }: ReferencesProps) {
         <div className="text-sm text-red-400">
           <span>Retrieval error: {ragError.message}</span>
         </div>
-        {ragError.stack && (
-          <>
-            <button
-              onClick={() => setIsStackExpanded(!isStackExpanded)}
-              className="text-xs text-gray-400 hover:text-gray-200 mt-1 flex items-center gap-1"
-              aria-label="Stack trace"
-            >
-              <span>{isStackExpanded ? "▼" : "▶"}</span>
-              Stack trace
-            </button>
-            {isStackExpanded && (
-              <pre className="mt-1 p-2 bg-gray-800 rounded text-gray-300 text-xs overflow-x-auto whitespace-pre-wrap">
-                {ragError.stack}
-              </pre>
-            )}
-          </>
-        )}
       </div>
     );
   }
