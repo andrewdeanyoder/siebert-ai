@@ -6,19 +6,18 @@ import { parseDocument } from "./parse";
 import { chunkDocument } from "./chunking";
 import { generateEmbeddings } from "./embeddings";
 
-
-type InjestSuccess = {
+export type IngestSuccess = {
   success: true;
   documentId: string;
   chunksCreated: number;
 }
 
-type InjestError = {
+export type IngestError = {
   success: false,
   error: string;
 }
 
-export type IngestResult = InjestSuccess | InjestError;
+export type IngestResult = IngestSuccess | IngestError;
 
 export async function ingestDocument(filePath: string): Promise<IngestResult> {
   // Parse the document

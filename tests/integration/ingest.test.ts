@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as fs from "fs/promises";
 import * as path from "path";
+import type {IngestSuccess, IngestError} from '../../src/lib/rag/ingest.ts'
 
 // Hoist mock functions so they're available in vi.mock factories
 const { mockValues, mockReturning, mockInsert, mockEmbedding, mockEmbedMany } =
@@ -35,7 +36,7 @@ vi.mock("ai", () => ({
 }));
 
 // Import after mocks are set up
-import { ingestDocument } from "#/lib/rag/ingest";
+import { ingestDocument, IngestResult } from "#/lib/rag/ingest";
 import { documents, chunks } from "#/db/schema";
 
 // Create a temp directory for test files
@@ -103,7 +104,7 @@ The nucleus contains DNA.`;
       mockEmbedMany.mockResolvedValue({ embeddings: mockEmbeddings });
 
       // Act
-      const result = await ingestDocument(testFilePath);
+      const result = await ingestDocument(testFilePath) as IngestSuccess;
 
       // Assert - result
       expect(result.success).toBe(true);
@@ -173,8 +174,9 @@ The nucleus contains DNA.`;
       const result = await ingestDocument(testFilePath);
 
       // Assert
-      expect(result.success).toBe(true);
-      expect(result.chunksCreated).toBe(2);
+      const successResult = result as IngestSuccess;
+      expect(successResult.success).toBe(true);
+      expect(successResult.chunksCreated).toBe(2);
 
       const chunksInsertCall = mockValues.mock.calls[1]?.[0];
       expect(chunksInsertCall.length).toBe(2);
@@ -267,8 +269,9 @@ startxref
       const result = await ingestDocument(testFilePath);
 
       // Assert - result
-      expect(result.success).toBe(true);
-      expect(result.documentId).toBe(mockDocumentId);
+      const successResult = result as IngestSuccess;
+      expect(successResult.success).toBe(true);
+      expect(successResult.documentId).toBe(mockDocumentId);
 
       // Assert - document insertion with PDF mime type
       expect(mockInsert).toHaveBeenCalledWith(documents);
@@ -328,8 +331,9 @@ startxref
       const result = await ingestDocument(testFilePath);
 
       // Assert - should produce 2 chunks split on the ## headings
-      expect(result.success).toBe(true);
-      expect(result.chunksCreated).toBe(2);
+      const successResult = result as IngestSuccess;
+      expect(successResult.success).toBe(true);
+      expect(successResult.chunksCreated).toBe(2);
 
       const chunksInsertCall = mockValues.mock.calls[1]?.[0];
       // First chunk: intro + section one
@@ -359,8 +363,9 @@ startxref
       const result = await ingestDocument(testFilePath);
 
       // Assert - all content stays in a single chunk (no split points)
-      expect(result.success).toBe(true);
-      expect(result.chunksCreated).toBe(1);
+      const successResult = result as IngestSuccess;
+      expect(successResult.success).toBe(true);
+      expect(successResult.chunksCreated).toBe(1);
     });
   });
 
@@ -391,8 +396,9 @@ startxref
       const result = await ingestDocument(testFilePath);
 
       // Assert
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('zero chunks created');
+      const errorResult = result as IngestError;
+      expect(errorResult.success).toBe(false);
+      expect(errorResult.error).toBe('zero chunks created');
 
       // Assert - document should still be inserted
       expect(mockInsert).not.toHaveBeenCalledWith(documents);
