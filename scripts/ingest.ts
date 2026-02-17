@@ -6,7 +6,7 @@ async function main() {
 
   if (args.length === 0) {
     console.error("Usage: pnpm ingest <file-path> [file-path...]");
-    console.error("Supported file types: .txt, .pdf");
+    console.error("Supported file types: .txt, .md, .pdf");
     process.exit(1);
   }
 

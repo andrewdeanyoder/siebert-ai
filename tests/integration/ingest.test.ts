@@ -301,6 +301,69 @@ startxref
     });
   });
 
+  describe("markdown file ingestion", () => {
+    it("should split markdown by ## and ### headings", async () => {
+      // Arrange - two h2 sections WITHOUT double newlines before them.
+      // Each section is ~600 chars so the first two segments merge into chunk 1
+      // (~600 chars) but adding segment 2 would exceed the 1000 char limit,
+      // forcing a second chunk. Without the ## pattern, there are no split
+      // points, so size-based chunking would produce different results.
+      const sectionOneBody = "A".repeat(550);
+      const sectionTwoBody = "B".repeat(550);
+      const mdContent = `# Main Title\nIntro.\n## Section One\n${sectionOneBody}\n## Section Two\n${sectionTwoBody}`;
+
+      const testFilePath = path.join(TEST_DIR, "notes.md");
+      await fs.writeFile(testFilePath, mdContent);
+
+      const mockDocumentId = "md-doc-123";
+      mockReturning.mockResolvedValue([{ id: mockDocumentId }]);
+
+      const mockEmbeddings = [
+        new Array(1536).fill(0.1),
+        new Array(1536).fill(0.2),
+      ];
+      mockEmbedMany.mockResolvedValue({ embeddings: mockEmbeddings });
+
+      // Act
+      const result = await ingestDocument(testFilePath);
+
+      // Assert - should produce 2 chunks split on the ## headings
+      expect(result.success).toBe(true);
+      expect(result.chunksCreated).toBe(2);
+
+      const chunksInsertCall = mockValues.mock.calls[1]?.[0];
+      // First chunk: intro + section one
+      expect(chunksInsertCall[0].content).toContain("# Main Title");
+      expect(chunksInsertCall[0].content).toContain("## Section One");
+      expect(chunksInsertCall[0].content).toContain(sectionOneBody);
+      expect(chunksInsertCall[0].content).not.toContain("## Section Two");
+      // Second chunk: section two only
+      expect(chunksInsertCall[1].content).toContain("## Section Two");
+      expect(chunksInsertCall[1].content).toContain(sectionTwoBody);
+      expect(chunksInsertCall[1].content).not.toContain("## Section One");
+    });
+
+    it("should not split markdown on h1 or h4 headings", async () => {
+      // Arrange - only h1 and h4 headings, no double newlines between them
+      const mdContent = `# Heading One\nSome content here.\n#### Deep Heading\nMore content here.`;
+
+      const testFilePath = path.join(TEST_DIR, "flat.md");
+      await fs.writeFile(testFilePath, mdContent);
+
+      mockReturning.mockResolvedValue([{ id: "md-doc-456" }]);
+      mockEmbedMany.mockResolvedValue({
+        embeddings: [new Array(1536).fill(0.1)],
+      });
+
+      // Act
+      const result = await ingestDocument(testFilePath);
+
+      // Assert - all content stays in a single chunk (no split points)
+      expect(result.success).toBe(true);
+      expect(result.chunksCreated).toBe(1);
+    });
+  });
+
   describe("error handling", () => {
     it("should reject invalid file types", async () => {
       // Arrange

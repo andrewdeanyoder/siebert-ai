@@ -5,7 +5,8 @@ export function chunkDocument(
   document: ParsedDocument,
 ): Chunk[] {
   const chunkSize = DEFAULT_CHUNK_SIZE;
-  const chunkOverlap = DEFAULT_CHUNK_OVERLAP;
+  const isMarkdown = document.metadata.mimeType === "text/markdown";
+  const chunkOverlap = isMarkdown ? 0 : DEFAULT_CHUNK_OVERLAP;
 
   const { content, pages } = document;
 
@@ -16,7 +17,9 @@ export function chunkDocument(
   const lines = content.split("\n");
 
   // Try semantic chunking first (by paragraphs/sections)
-  const semanticChunks = splitBySemanticBoundaries(content);
+  const semanticChunks = splitBySemanticBoundaries(content, document.metadata.mimeType);
+
+
 
   let chunks: Chunk[];
   if (semanticChunks.length > 1) {
@@ -45,9 +48,14 @@ export function chunkDocument(
   return chunks;
 }
 
-function splitBySemanticBoundaries(content: string): string[] {
-  // Split by double newlines (paragraphs) or chapter/section markers
-  const sectionPattern = /\n\n+|(?=^(?:Chapter|Section|\d+\.)\s)/gim;
+function splitBySemanticBoundaries(content: string, mimeType: string): string[] {
+  const sectionPattern =
+    mimeType === "text/markdown"
+      ? // Split before ## / ### headings
+        /(?=^#{2,3}\s)/gm
+      : // Split by double newlines (paragraphs) or chapter/section markers
+        /\n\n+|(?=^(?:Chapter|Section|\d+\.)\s)/gim;
+
   const segments = content.split(sectionPattern).filter((s) => s.trim());
 
   return segments;
@@ -79,7 +87,9 @@ function createChunksFromSegments(
       const overlapText = getOverlapText(currentChunk, overlap);
       currentChunk = overlapText + segment;
     } else {
-      currentChunk += (currentChunk ? "\n\n" : "") + segment;
+      const separator = currentChunk ? "\n\n" : "";
+
+      currentChunk += separator + segment;
     }
   }
 
@@ -147,7 +157,7 @@ function findLineNumbers(
 ): { start: number; end: number } {
   const chunkFirstLine = chunk.split("\n")[0]?.trim();
   const chunkLines = chunk.split("\n");
-  const chunkLastLine = chunkLines[chunkLines.length - 1]?.trim();
+  const chunkLastLine = chunkLines.findLast((line) => line.trim())?.trim();
 
   let start = 1;
   let end = allLines.length;
@@ -170,6 +180,7 @@ function findLineNumbers(
 }
 
 function getOverlapText(text: string, overlapSize: number): string {
+  if (overlapSize === 0) return "";
   if (text.length <= overlapSize) return text;
   return text.slice(-overlapSize);
 }

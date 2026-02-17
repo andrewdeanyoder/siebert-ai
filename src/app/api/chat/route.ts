@@ -21,6 +21,7 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
 
     // Get the latest user message for RAG retrieval
+    // todo: this will get inefficient in long conversations; why not just use a reversed for loop?
     const lastUserMessage = [...messages].reverse().find(
       (m: { role: string }) => m.role === "user"
     );

@@ -6,6 +6,7 @@ import { parseDocument } from "./parse";
 import { chunkDocument } from "./chunking";
 import { generateEmbeddings } from "./embeddings";
 
+
 type InjestSuccess = {
   success: true;
   documentId: string;

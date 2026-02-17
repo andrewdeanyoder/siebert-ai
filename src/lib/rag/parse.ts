@@ -5,6 +5,7 @@ import type { ParsedDocument } from "./types";
 
 const SUPPORTED_MIME_TYPES = {
   ".txt": "text/plain",
+  ".md": "text/markdown",
   ".pdf": "application/pdf",
 } as const;
 
@@ -20,8 +21,8 @@ export async function parseDocument(filePath: string): Promise<ParsedDocument> {
 
   const filename = path.basename(filePath);
 
-  if (mimeType === "text/plain") {
-    return parseTextFile(filePath, filename);
+  if (mimeType === "text/plain" || mimeType === "text/markdown") {
+    return parseTextFile(filePath, filename, mimeType);
   }
 
   return parsePdfFile(filePath, filename);
@@ -29,7 +30,8 @@ export async function parseDocument(filePath: string): Promise<ParsedDocument> {
 
 async function parseTextFile(
   filePath: string,
-  filename: string
+  filename: string,
+  mimeType: string
 ): Promise<ParsedDocument> {
   const content = await fs.readFile(filePath, "utf-8");
 
@@ -37,7 +39,7 @@ async function parseTextFile(
     content,
     metadata: {
       filename,
-      mimeType: "text/plain",
+      mimeType,
     },
   };
 }
