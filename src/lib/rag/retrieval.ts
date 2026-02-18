@@ -14,9 +14,7 @@ export async function retrieveRelevantChunks(
   query: string
 ): Promise<RetrievedChunk[]> {
   console.log("[RAG] retrieveRelevantChunks called with query:", query.substring(0, 100));
-  console.log("[RAG] Config - SIMILARITY_THRESHOLD:", SIMILARITY_THRESHOLD, "MAX_RETRIEVAL_CHUNKS:", MAX_RETRIEVAL_CHUNKS);
 
-  // Generate embedding for the query
   const { embedding: queryEmbedding } = await embed({
     model: openai.embedding(EMBEDDING_MODEL),
     value: query,

@@ -19,8 +19,6 @@ export function chunkDocument(
   // Try semantic chunking first (by paragraphs/sections)
   const semanticChunks = splitBySemanticBoundaries(content, document.metadata.mimeType);
 
-
-
   let chunks: Chunk[];
   if (semanticChunks.length > 1) {
     // Use semantic chunks if we found meaningful boundaries

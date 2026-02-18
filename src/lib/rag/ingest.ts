@@ -20,24 +20,20 @@ export type IngestError = {
 export type IngestResult = IngestSuccess | IngestError;
 
 export async function ingestDocument(filePath: string): Promise<IngestResult> {
-  // Parse the document
   const parsed = await parseDocument(filePath);
 
-  // Get file stats
-  const stats = await fs.stat(filePath);
+  const fileStats = await fs.stat(filePath);
   const filename = path.basename(filePath);
 
-  // Chunk the document
   const documentChunks = chunkDocument(parsed);
 
   if (documentChunks.length === 0) {
     return {
-      success: false, // TODO: is this really a success????
+      success: false,
       error: 'zero chunks created'
     };
   }
 
-  // Generate embeddings
   const chunksWithEmbeddings = await generateEmbeddings(documentChunks);
 
   // Insert document record
@@ -49,7 +45,7 @@ export async function ingestDocument(filePath: string): Promise<IngestResult> {
       originalName: filename,
       storagePath: filePath,
       mimeType: parsed.metadata.mimeType,
-      fileSize: stats.size,
+      fileSize: fileStats.size,
     })
     .returning({ id: documents.id });
 
