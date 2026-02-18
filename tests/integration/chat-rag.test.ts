@@ -112,7 +112,12 @@ describe("Chat API with RAG", () => {
     const request = new NextRequest("http://localhost:3000/api/chat", {
       method: "POST",
       body: JSON.stringify({
-        messages: [{ role: "user", content: "How many chambers does the heart have?" }],
+        messages: [
+          { role: "system", content: "You are a helpful tutor." },
+          { role: "user", content: "Hi, I'm studying anatomy." },
+          { role: "assistant", content: "Welcome! What topic would you like to explore?" },
+          { role: "user", content: "How many chambers does the heart have?" },
+        ],
       }),
     });
 
