@@ -25,25 +25,25 @@ describe('Chat microphone', () => {
     ;(globalThis as any).webkitSpeechRecognition = MockSpeechRecognition as any
   })
 
-  it('displays TTS method dropdown with Vosk and Browser VoiceRecognition options', async () => {
+  it('displays TTS method dropdown with all four microphone options', async () => {
     render(<Chat />)
 
     // The dropdown should be present underneath the input field
     const dropdown = screen.getByRole('combobox', { name: /tts method/i })
     expect(dropdown).toBeInTheDocument()
 
-    // Click to open dropdown
-    fireEvent.click(dropdown)
-
-    // Should show both options
+    // Should show all four options: Deepgram, Deepgram Medical, Browser, Vosk
+    const deepgramOption = screen.getByRole('option', { name: 'Deepgram' })
+    const deepgramMedicalOption = screen.getByRole('option', { name: 'Deepgram Medical' })
     const browserOption = screen.getByRole('option', { name: /browser/i })
-    const voskOption = screen.getByRole('option', { name: /vosk \(untrained\)/i })
+    const voskOption = screen.getByRole('option', { name: /vosk/i })
 
+    expect(deepgramOption).toBeInTheDocument()
+    expect(deepgramMedicalOption).toBeInTheDocument()
     expect(browserOption).toBeInTheDocument()
     expect(voskOption).toBeInTheDocument()
 
-    // Browser VoiceRecognition should be selected by default
-    expect(dropdown).toHaveValue('browser')
+    expect(dropdown).toHaveValue('deepgram')
 
     // Select Vosk option
     fireEvent.change(dropdown, { target: { value: 'vosk' } })
