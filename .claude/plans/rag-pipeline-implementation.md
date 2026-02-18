@@ -123,6 +123,9 @@ Provide detailed RAG operation visibility for admin users. Currently, RAG failur
 ### Phase 6: Cleanup
 - Check whether lint and types are running on the integration test files.
 - Review tested use cases in Phase 4 & 5. Tighten up or add assertions, if necessary.
+- Handle duplicate documents during ingestion (replace existing document instead of inserting a second copy).
+- Add error handling for chunk insertion failures in `ingest.ts`.
+- Fix "no matching chunks" test mock: `orderBy` is not properly chained, causing the test to pass via graceful degradation rather than testing the true happy path.
 
 ---
 
