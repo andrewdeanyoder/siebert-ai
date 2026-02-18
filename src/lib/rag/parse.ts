@@ -3,15 +3,15 @@ import * as path from "path";
 import { PDFParse } from "pdf-parse";
 import type { ParsedDocument } from "./types";
 
-const SUPPORTED_MIME_TYPES = {
+export const SUPPORTED_MIME_TYPES = {
   ".txt": "text/plain",
   ".md": "text/markdown",
   ".pdf": "application/pdf",
 } as const;
 
 export async function parseDocument(filePath: string): Promise<ParsedDocument> {
-  const ext = path.extname(filePath).toLowerCase();
-  const mimeType = SUPPORTED_MIME_TYPES[ext as keyof typeof SUPPORTED_MIME_TYPES];
+  const ext = path.extname(filePath).toLowerCase() as keyof typeof SUPPORTED_MIME_TYPES;
+  const mimeType = SUPPORTED_MIME_TYPES[ext];
 
   if (!mimeType) {
     throw new Error(
@@ -59,7 +59,7 @@ async function parsePdfFile(
     text: page.text,
   }));
 
-  // todo: add support for extracting images from the Pdfs
+  // todo: add support for extracting images from the Pdfs (major feature)
   return {
     content: textResult.text,
     pages,

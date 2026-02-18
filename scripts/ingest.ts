@@ -1,12 +1,13 @@
 import * as path from "path";
 import { ingestDocument } from "#/lib/rag/ingest";
+import { SUPPORTED_MIME_TYPES } from "#/lib/rag/parse";
 
 async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
     console.error("Usage: pnpm ingest <file-path> [file-path...]");
-    console.error("Supported file types: .txt, .md, .pdf");
+    console.error(`Supported file types: ${Object.keys(SUPPORTED_MIME_TYPES).join(", ")}`);
     process.exit(1);
   }
 
@@ -34,8 +35,6 @@ async function main() {
       console.error(`  ✗ Error:`, error);
       failCount++;
     }
-
-    console.log();
   }
 
   console.log(`\nDone! ${successCount} succeeded, ${failCount} failed.`);
