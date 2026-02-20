@@ -288,9 +288,11 @@ graph TB
 | `src/lib/rag/chunking.ts` | Semantic chunking logic |
 | `src/lib/rag/embeddings.ts` | OpenAI embedding generation |
 | `src/lib/rag/ingest.ts` | Orchestrates ingestion pipeline |
+| `src/lib/rag/delete.ts` | Deletes a document and its chunks by UUID |
 | `src/lib/rag/retrieval.ts` | Vector similarity search |
 | `src/lib/rag/context.ts` | Context formatting for chat |
 | `scripts/ingest.ts` | CLI tool for document ingestion |
+| `scripts/delete-doc.ts` | CLI tool for document deletion (`pnpm delete-doc <id>`) |
 
 ## RAG Pipeline Architecture (Phase 3: Chat Integration)
 
