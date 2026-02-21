@@ -66,6 +66,14 @@ const Chat: React.FC = () => {
                 maxHeight: '240px', // ~10 lines at 24px line height
                 height: 'auto',
               }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (input.trim() && !isLoading) {
+                    e.currentTarget.form?.requestSubmit();
+                  }
+                }
+              }}
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = 'auto';
