@@ -51,11 +51,11 @@ const Chat: React.FC = () => {
           <span>AI is thinking...</span>
         </div>
       )}
-      <form onSubmit={handleMessageSubmit} className="flex flex-col items-center w-full">
-        <div className="w-[66.666667vw] relative">
+      <form onSubmit={handleMessageSubmit} className="w-full">
+        <div className="w-full relative">
           <div className="bg-gray-100 rounded-xl p-4 border border-gray-200 relative">
             <textarea
-              className="w-full px-4 py-3 pr-28 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black resize-none overflow-y-auto"
+              className="w-full px-4 py-3 pr-28 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black text-base resize-none overflow-y-auto"
               value={input}
               onChange={handleInputChange}
               disabled={isLoading}
