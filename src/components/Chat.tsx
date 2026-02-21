@@ -69,7 +69,7 @@ const Chat: React.FC = () => {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
-                  if (input.trim() && !isLoading) {
+                  if (!isLoading) {
                     e.currentTarget.form?.requestSubmit();
                   }
                 }
