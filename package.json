@@ -16,6 +16,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:install": "playwright install",
     "ingest": "tsx scripts/ingest.ts",
+    "delete-doc": "tsx scripts/delete-doc.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
