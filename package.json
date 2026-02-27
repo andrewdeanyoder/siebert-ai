@@ -28,12 +28,12 @@
     "@vercel/analytics": "1.5.0",
     "ai": "4.3.19",
     "drizzle-orm": "^0.45.1",
-    "next": "15.5.9",
+    "next": "15.5.12",
     "pg": "^8.18.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-markdown": "10.1.0",
-    "validator": "13.15.15",
+    "validator": "13.15.26",
     "vosk-browser": "0.0.8"
   },
   "devDependencies": {
@@ -62,7 +62,7 @@
     "eslint-plugin-prettier": "5.5.4",
     "jsdom": "26.1.0",
     "pdf-parse": "^2.4.5",
-    "playwright": "1.54.2",
+    "playwright": "1.55.1",
     "prettier": "3.6.2",
     "tailwindcss": "4.1.13",
     "tsx": "^4.21.0",
