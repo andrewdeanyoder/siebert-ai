@@ -8,18 +8,29 @@ The goal is to expose RAG as an AI SDK tool (`searchCourseContent`) so the model
 
 ## Files to Modify
 
-1. `src/app/api/chat/route.ts` — core logic
-2. `src/app/prompts.ts` — system prompt addition
-3. `tests/integration/chat-rag.test.ts` — test rewrite
+1. `package.json` — upgrade AI SDK
+2. `src/db/queries.ts` — new file: extracted DB query helpers
+3. `src/lib/rag/retrieval.ts` — use new DB helpers
+4. `src/app/api/chat/route.ts` — core logic
+5. `src/app/prompts.ts` — system prompt addition
+6. `tests/integration/chat-rag.test.ts` — test rewrite
 
 ## Implementation
 
-### 1. `src/app/api/chat/route.ts`
+### 1. `package.json`
 
-Add `tool` to the `ai` import and add `zod`:
+Upgrade the AI SDK packages:
+
+```bash
+pnpm add ai@^5 @ai-sdk/openai@^1
+```
+
+### 2. `src/app/api/chat/route.ts`
+
+Add `tool` and `stepCountIs` to the `ai` import and add `zod`:
 
 ```typescript
-import { generateText, tool } from "ai";
+import { generateText, tool, stepCountIs } from "ai";
 import { z } from "zod";
 ```
 
@@ -34,7 +45,7 @@ let ragError: RagError | undefined;
 const searchCourseContent = tool({
   description:
     "Search the course materials for content relevant to the student's question. Call this tool whenever the student asks about an A&P concept, term, structure, or process.",
-  parameters: z.object({
+  inputSchema: z.object({
     query: z.string().describe("Search query based on the student's question"),
   }),
   execute: async ({ query }) => {
@@ -58,7 +69,7 @@ const response = await generateText({
   model: openai(MODEL),
   messages: [SYSTEM_PROMPT, ...messages],
   tools: { searchCourseContent },
-  maxSteps: 2,
+  stopWhen: stepCountIs(2),
 });
 
 const references: Reference[] = chunksToReferences(retrievedChunks);
@@ -68,7 +79,7 @@ The `references` and `ragError` response fields stay unchanged.
 
 **Design notes:**
 - Closure capture: `retrievedChunks` and `ragError` are declared in the outer `POST` scope and mutated inside the tool's `execute`. After `generateText` resolves (all steps complete), the outer scope reads the captured values.
-- `maxSteps: 2`: Step 1 = model calls the tool; Step 2 = model generates the final response using the tool result.
+- `stopWhen: stepCountIs(2)`: Step 1 = model calls the tool; Step 2 = model generates the final response using the tool result. Equivalent to the v4 `maxSteps: 2`.
 - Graceful degradation preserved: the tool catches its own errors internally and never throws, so `generateText` always completes.
 
 ### 2. `src/app/prompts.ts`
@@ -79,14 +90,30 @@ Add one bullet to the `### Special Notes` section (after the "Foster metacogniti
 - **Course material search**: You have access to a \`searchCourseContent\` tool that searches uploaded course materials. Call it whenever a student asks about an A&P concept, term, structure, or process. Do not mention the tool to the student.
 ```
 
-### 3. `tests/integration/chat-rag.test.ts`
+### 3. `src/db/queries.ts` (new file)
 
-The current tests mock the full DB chain (select → from → innerJoin → where → orderBy → limit) plus `embed`. With the tool approach, mock at `retrieveRelevantChunks` directly — much simpler.
+Extract the two DB query blocks from `retrieval.ts` into named helpers:
+
+```typescript
+// Wraps lines 28-47 of retrieval.ts
+export async function querySimilarChunks(queryEmbedding: number[]): Promise<...> { ... }
+
+// Wraps lines 58-69 of retrieval.ts
+export async function queryTopChunksForDebug(queryEmbedding: number[]): Promise<...> { ... }
+```
+
+### 4. `src/lib/rag/retrieval.ts`
+
+Replace the inline DB query blocks with calls to the new helpers from `#/db/queries`.
+
+### 5. `tests/integration/chat-rag.test.ts`
+
+Mock at the `#/db/queries` level — the DB helpers are replaced, while `retrieveRelevantChunks` runs for real. `embed` must still be mocked since it calls OpenAI; keep `mockEmbed`/`mockEmbedding` in the hoisted block and `vi.mock("ai", ...)` as before.
 
 Key changes:
 - Remove all DB chain mocks and `mockEmbed`/`mockEmbedding` from hoisted block
-- Add `mockRetrieveRelevantChunks` to the hoisted block
-- Add `vi.mock("#/lib/rag/retrieval", ...)` with `mockRetrieveRelevantChunks`
+- Add `mockQuerySimilarChunks` and `mockQueryTopChunksForDebug` to the hoisted block
+- Add `vi.mock("#/db/queries", ...)` with those mocks
 - Add `tool: (t) => t` to the `ai` mock (it's a pass-through in the real SDK)
 - In tests that verify chunk/reference behavior, use `mockGenerateText.mockImplementation` to simulate the model calling the tool — this exercises the closure capture path:
 
@@ -97,8 +124,8 @@ mockGenerateText.mockImplementation(async ({ tools }) => {
 });
 ```
 
-- The graceful degradation test: `mockRetrieveRelevantChunks.mockRejectedValue(new Error(...))`, assert `data.ragError` is set and `data.references` is empty.
-- Add a structural test asserting `generateText` is called with `tools` containing `searchCourseContent` and `maxSteps: 2`.
+- The graceful degradation test: `mockQuerySimilarChunks.mockRejectedValue(new Error(...))`, assert `data.ragError` is set and `data.references` is empty.
+- Add a structural test asserting `generateText` is called with `tools` containing `searchCourseContent` and `stopWhen: stepCountIs(2)`.
 - Remove the "sort chunks by relevance and limit to MAX_RETRIEVAL_CHUNKS" test — that behavior lives in `retrieval.ts` and belongs in a unit test there, not the route integration test.
 
 ## Verification

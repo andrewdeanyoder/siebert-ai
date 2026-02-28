@@ -21,7 +21,7 @@ c. [ ] Configure how Claude should interact and make decisions
 
 ### 4. Skills and Prompts Setup
 a. [x] Create `.claude/skills/` directory for custom commands
-b. [ ] Create `.claude/prompts/` directory for reusable prompt templates
+b. [x] Create `.claude/prompts/` directory for reusable prompt templates
 c. [ ] Look for examples online to populate with project-specific workflows
 d. [ ] Create project-specific commands (like `/test-auth` or `/run-e2e`)
 e. [ ] Install GitHub CLI (`brew install gh && gh auth login`) for PR/issue commands
