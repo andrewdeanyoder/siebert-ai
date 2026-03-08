@@ -33,7 +33,7 @@ export default function Messages({ messages }: { messages: MessageWithReferences
             <div className="text-lg">
               {msg.role === "assistant" ? "🤖" : "🧑‍💻"}
             </div>
-            <div className="flex-1 prose prose-sm max-w-none prose-invert">
+            <div className="flex-1 prose prose-base max-w-none prose-invert">
               <ReactMarkdown>{msg.content}</ReactMarkdown>
             </div>
           </div>

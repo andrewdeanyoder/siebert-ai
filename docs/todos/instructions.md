@@ -44,6 +44,8 @@ This file lists completed and upcoming units of work.
         iii. [x] make sure I handle tear down in all use cases
         iv. [x] give the option to choose medical
     e. [ ] make the text area expand as interim results come in
+23. [ ] Flesh out Chat.microphone.test.tsx — currently only covers dropdown rendering; needs tests for: starting/stopping recording, transcript appended to input, error state, loading spinner visibility
+24. [ ] Add test to Chat.keyboard.test.tsx asserting that pressing Enter while isLoading is true does not call submitMessages
 22. [ ] productionize chosen TTS method
     b. [ ] help me understand all implementations in detail
     c. [ ] discard code and write failing unit tests

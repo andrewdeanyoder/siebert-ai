@@ -21,7 +21,7 @@ export default async function Home() {
           <LogoutButton />
         </div>
 
-        <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        <main className="flex flex-col gap-[32px] row-start-2 items-center w-full">
           {/* todo: factor out the logo */}
           <div className="flex flex-col items-center w-full mb-8">
             <Image
