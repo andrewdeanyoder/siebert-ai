@@ -67,9 +67,18 @@ b. [ ] Configure default environment (network access level, environment variable
 c. [ ] Test running a simple task remotely using `&` prefix (e.g., `& Run the tests`)
 d. [ ] Practice monitoring remote sessions with `/tasks` and teleporting them back with `/teleport`
 
+### 13. Claude Code Hooks
+a. [ ] Auto-format with Prettier on every edit (PostToolUse on Edit|Write — runs `pnpm prettier --write` on the changed file)
+b. [ ] Desktop notification when Claude stops (Stop hook — `osascript` on macOS)
+c. [ ] Block destructive git commands (PreToolUse on Bash — script to intercept `git push --force`, `git reset --hard`, etc.)
+
 **Resources:**
 - [Claude Code on the web - Official Docs](https://code.claude.com/docs/en/claude-code-on-the-web)
 - [Common workflows - Official Docs](https://code.claude.com/docs/en/common-workflows)
+- [Automate workflows with hooks - Official Docs](https://code.claude.com/docs/en/hooks-guide)
+- [A complete guide to hooks in Claude Code - eesel.ai](https://www.eesel.ai/blog/hooks-in-claude-code)
+- [Automate Your AI Workflows with Claude Code Hooks - GitButler](https://blog.gitbutler.com/automate-your-ai-workflows-with-claude-code-hooks)
+- [Claude Code hook examples - Steve Kinney](https://stevekinney.com/courses/ai-development/claude-code-hook-examples)
 
 ## Priority Items for This Project:
 Given the stack (Next.js, Supabase, Deepgram, Vitest, Playwright), prioritize:
