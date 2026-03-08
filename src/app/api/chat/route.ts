@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
     const searchCourseContent = tool({
       description:
-        "Search the course materials for content relevant to the student's question. Call this tool whenever the student asks about an A&P concept, term, structure, or process.",
+        "Search A&P course materials for content relevant to the student's question. Call this tool the student asks about an A&P concept, term, structure, or process, or when you need to explain an A&P concept, term, structure or process.",
       inputSchema: z.object({
         query: z.string().describe("Search query based on the student's question"),
       }),
