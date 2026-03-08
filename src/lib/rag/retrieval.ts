@@ -1,13 +1,7 @@
 import { embed } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { desc, gt, sql } from "drizzle-orm";
-import { db } from "#/db";
-import { chunks, documents } from "#/db/schema";
-import {
-  EMBEDDING_MODEL,
-  SIMILARITY_THRESHOLD,
-  MAX_RETRIEVAL_CHUNKS,
-} from "#/lib/constants";
+import { EMBEDDING_MODEL } from "#/lib/constants";
+import { querySimilarChunks, queryTopChunksForDebug } from "#/db/queries";
 import type { RetrievedChunk } from "./types";
 
 export async function retrieveRelevantChunks(
@@ -21,30 +15,7 @@ export async function retrieveRelevantChunks(
   });
   console.log("[RAG] Query embedding generated, dimensions:", queryEmbedding.length);
 
-  // Query for similar chunks using cosine similarity
-  // pgvector uses cosine distance (1 - similarity), so we convert
-  const similarityExpr = sql<number>`1 - (${chunks.embedding} <=> ${JSON.stringify(queryEmbedding)}::vector)`;
-
-  const results = await db
-    .select({
-      id: chunks.id,
-      documentId: chunks.documentId,
-      content: chunks.content,
-      embedding: chunks.embedding,
-      chunkIndex: chunks.chunkIndex,
-      pageNumber: chunks.pageNumber,
-      lineStart: chunks.lineStart,
-      lineEnd: chunks.lineEnd,
-      metadata: chunks.metadata,
-      createdAt: chunks.createdAt,
-      similarity: similarityExpr,
-      documentName: documents.originalName,
-    })
-    .from(chunks)
-    .innerJoin(documents, sql`${chunks.documentId} = ${documents.id}`)
-    .where(gt(similarityExpr, SIMILARITY_THRESHOLD))
-    .orderBy(desc(similarityExpr))
-    .limit(MAX_RETRIEVAL_CHUNKS);
+  const results = await querySimilarChunks(queryEmbedding);
 
   console.log("[RAG] Database query returned", results.length, "chunks above threshold");
   if (results.length > 0) {
@@ -54,18 +25,7 @@ export async function retrieveRelevantChunks(
       contentPreview: r.content.substring(0, 50) + "..."
     })));
   } else {
-    // Debug: check what chunks exist and their max similarity
-    const debugResults = await db
-      .select({
-        id: chunks.id,
-        similarity: similarityExpr,
-        documentName: documents.originalName,
-        contentPreview: sql<string>`LEFT(${chunks.content}, 50)`,
-      })
-      .from(chunks)
-      .innerJoin(documents, sql`${chunks.documentId} = ${documents.id}`)
-      .orderBy(desc(similarityExpr))
-      .limit(3);
+    const debugResults = await queryTopChunksForDebug(queryEmbedding);
     console.log("[RAG] DEBUG - No chunks above threshold. Top 3 chunks by similarity:", debugResults);
   }
 

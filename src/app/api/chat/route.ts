@@ -1,5 +1,6 @@
-import { generateText } from "ai";
+import { generateText, tool, stepCountIs } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { z } from "zod";
 import { SYSTEM_PROMPT } from "../../prompts";
 import { MODEL } from "../../../lib/constants";
 import { retrieveRelevantChunks } from "#/lib/rag/retrieval";
@@ -20,47 +21,41 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
-    // Get the latest user message for RAG retrieval
-    const lastUserMessage = messages.findLast(
-      (m: { role: string }) => m.role === "user"
-    );
-
-    // Retrieve relevant chunks (gracefully degrade on error)
-    let relevantChunks: RetrievedChunk[] = [];
-    let references: Reference[] = [];
+    let retrievedChunks: RetrievedChunk[] = [];
     let ragError: RagError | undefined;
 
-    if (lastUserMessage?.content) {
-      console.log("[CHAT] Starting RAG retrieval for user message:", lastUserMessage.content.substring(0, 100));
-      try {
-        relevantChunks = await retrieveRelevantChunks(lastUserMessage.content);
-        references = chunksToReferences(relevantChunks);
-        console.log("[CHAT] RAG retrieval complete. Chunks:", relevantChunks.length, "References:", references.length);
-      } catch (error) {
-        console.error('RAG retrieval failed, continuing without context:', error);
-        ragError = {
-          message: error instanceof Error ? error.message : String(error),
-        };
-      }
-    } else {
-      console.log("[CHAT] No user message found for RAG retrieval");
-    }
-
-    // Build messages with optional context injection
-    const contextMessage = formatContextMessage(relevantChunks);
-    const messagesWithContext = [
-      SYSTEM_PROMPT,
-      ...(contextMessage ? [{ role: "system" as const, content: contextMessage }] : []),
-      ...messages,
-    ];
-
-    // Ask OpenAI for a complete chat completion given the prompt
-    const response = await generateText({
-      model: openai(MODEL),
-      messages: messagesWithContext,
+    const searchCourseContent = tool({
+      description:
+        "Search the course materials for content relevant to the student's question. Call this tool whenever the student asks about an A&P concept, term, structure, or process.",
+      inputSchema: z.object({
+        query: z.string().describe("Search query based on the student's question"),
+      }),
+      execute: async ({ query }) => {
+        console.log("[CHAT] Tool: searchCourseContent called with query:", query.substring(0, 100));
+        try {
+          retrievedChunks = await retrieveRelevantChunks(query);
+          console.log("[CHAT] Tool: retrieved", retrievedChunks.length, "chunks");
+          const contextMessage = formatContextMessage(retrievedChunks);
+          return contextMessage || "No relevant course materials found for this query.";
+        } catch (error) {
+          console.error("[CHAT] Tool: retrieval failed:", error);
+          ragError = {
+            message: error instanceof Error ? error.message : String(error),
+          };
+          return "Course material search is temporarily unavailable.";
+        }
+      },
     });
 
-    // Return the complete response as JSON with references
+    const response = await generateText({
+      model: openai(MODEL),
+      messages: [SYSTEM_PROMPT, ...messages],
+      tools: { searchCourseContent },
+      stopWhen: stepCountIs(2),
+    });
+
+    const references: Reference[] = chunksToReferences(retrievedChunks);
+
     return Response.json({
       id: Date.now().toString(),
       role: "assistant",
