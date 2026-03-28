@@ -18,7 +18,7 @@ export default function StickyBanner () {
   }, []);
 
   return showStickyBanner ? (
-    <div className="fixed top-0 left-0 right-0 h-[60px] bg-black border-b border-white z-50 flex items-center justify-between px-6">
+    <div className="fixed top-0 left-0 right-0 h-[60px] bg-white dark:bg-black border-b border-gray-400 dark:border-white z-50 flex items-center justify-between px-6">
       <div className="flex items-center gap-3">
         <Image
           src="/ai-tutor-logo.png"
@@ -27,7 +27,7 @@ export default function StickyBanner () {
           height={40}
           className="rounded-full"
         />
-        <span className="text-white font-semibold text-lg">Siebert Science AI Tutor</span>
+        <span className="text-gray-950 dark:text-white font-semibold text-lg">Siebert Science AI Tutor</span>
       </div>
       <LogoutButton />
     </div>
