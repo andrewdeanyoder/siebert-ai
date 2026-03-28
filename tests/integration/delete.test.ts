@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { DeleteSuccess, DeleteError } from "../../src/lib/rag/delete.ts";
+import type { DeleteSuccess, DeleteError } from "../../scripts/delete-doc";
 
 const { mockSelectWhere, mockSelectFrom, mockSelect, mockDeleteWhere, mockDelete } =
   vi.hoisted(() => {
@@ -18,8 +18,8 @@ vi.mock("#/db", () => ({
   },
 }));
 
-import { deleteDocument } from "#/lib/rag/delete";
 import { documents, chunks } from "#/db/schema";
+import { deleteDocument } from "../../scripts/delete-doc";
 
 describe("deleteDocument", () => {
   beforeEach(() => {

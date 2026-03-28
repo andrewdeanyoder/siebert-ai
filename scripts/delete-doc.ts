@@ -2,20 +2,20 @@ import {eq, count } from "drizzle-orm";
 import { db } from "#/db";
 import { documents, chunks } from "#/db/schema";
 
-type DeleteSuccess = {
+export type DeleteSuccess = {
   success: true;
   originalName: string;
   chunksDeleted: number;
 };
 
-type DeleteError = {
+export type DeleteError = {
   success: false;
   error: string;
 };
 
 type DeleteResult = DeleteSuccess | DeleteError;
 
-async function deleteDocument(documentId: string): Promise<DeleteResult> {
+export async function deleteDocument(documentId: string): Promise<DeleteResult> {
   const [doc] = await db.select().from(documents).where(eq(documents.id, documentId));
 
   if (!doc) {
