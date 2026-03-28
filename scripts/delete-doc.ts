@@ -1,4 +1,38 @@
-import { deleteDocument } from "#/lib/rag/delete";
+import {eq, count } from "drizzle-orm";
+import { db } from "#/db";
+import { documents, chunks } from "#/db/schema";
+
+type DeleteSuccess = {
+  success: true;
+  originalName: string;
+  chunksDeleted: number;
+};
+
+type DeleteError = {
+  success: false;
+  error: string;
+};
+
+type DeleteResult = DeleteSuccess | DeleteError;
+
+async function deleteDocument(documentId: string): Promise<DeleteResult> {
+  const [doc] = await db.select().from(documents).where(eq(documents.id, documentId));
+
+  if (!doc) {
+    return { success: false, error: `Document not found: ${documentId}` };
+  }
+
+  const [countResult] = await db
+    .select({ count: count() })
+    .from(chunks)
+    .where(eq(chunks.documentId, documentId));
+
+  const chunksDeleted = Number(countResult?.count ?? 0);
+
+  await db.delete(documents).where(eq(documents.id, documentId));
+
+  return { success: true, originalName: doc.originalName, chunksDeleted };
+}
 
 async function main() {
   const args = process.argv.slice(2);

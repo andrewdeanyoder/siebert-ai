@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [],
     "deny": [
-      "Bash(*delete-doc*)"
+      "Bash(*delete-doc*)",
+      "Read(scripts/delete-doc.ts)"
     ]
   }
 }
