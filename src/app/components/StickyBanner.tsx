@@ -21,8 +21,8 @@ export default function StickyBanner () {
     <div className="fixed top-0 left-0 right-0 h-[60px] bg-black border-b border-white z-50 flex items-center justify-between px-6">
       <div className="flex items-center gap-3">
         <Image
-          src="/memory-lab-brain.png"
-          alt="Memory Lab Brain"
+          src="/ai-tutor-logo.png"
+          alt="Siebert Science AI Tutor"
           width={40}
           height={40}
           className="rounded-full"

@@ -25,10 +25,10 @@ export default async function Home() {
           {/* todo: factor out the logo */}
           <div className="flex flex-col items-center w-full mb-8">
             <Image
-              src="/teacher.jpeg"
-              alt="Teacher"
+              src="/ai-tutor-logo.png"
+              alt="Siebert Science AI Tutor"
               width={200}
-              height={50}
+              height={200}
               className="w-auto h-auto max-w-full"
               priority
             />
