@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "A&P Memory Lab Tutor",
-  description: "A&P Memory Lab Tutor - AI-powered learning assistant",
+  title: "Siebert Science AI Tutor",
+  description: "Siebert Science AI Tutor - AI-powered learning assistant",
 };
 
 export default function RootLayout({

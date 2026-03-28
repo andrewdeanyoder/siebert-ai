@@ -27,7 +27,7 @@ export default function StickyBanner () {
           height={40}
           className="rounded-full"
         />
-        <span className="text-white font-semibold text-lg">A&P Memory Lab</span>
+        <span className="text-white font-semibold text-lg">Siebert Science AI Tutor</span>
       </div>
       <LogoutButton />
     </div>

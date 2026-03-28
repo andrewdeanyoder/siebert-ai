@@ -32,7 +32,7 @@ export default async function Home() {
               className="w-auto h-auto max-w-full"
               priority
             />
-            <h1 className="text-3xl font-bold text-white mt-4">A&P Memory Lab Tutor</h1>
+            <h1 className="text-3xl font-bold text-white mt-4">Siebert Science AI Tutor</h1>
           </div>
           <div className="w-full max-w-4xl">
             <Chat/>
