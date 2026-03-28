@@ -1,6 +1,7 @@
 import {eq, count } from "drizzle-orm";
 import { db } from "#/db";
 import { documents, chunks } from "#/db/schema";
+import { fileURLToPath } from "node:url";
 
 export type DeleteSuccess = {
   success: true;
@@ -61,5 +62,6 @@ async function main() {
     process.exit(1);
   }
 }
-
-main();
+  if (process.argv[1] === fileURLToPath(import.meta.url)) {
+    main();
+  }
