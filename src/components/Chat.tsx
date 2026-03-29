@@ -27,6 +27,7 @@ const Chat: React.FC = () => {
     if (!el) return;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, TEXTAREA_MAX_HEIGHT) + 'px';
+    el.scrollTop = el.scrollHeight;
   }, [input]);
 
   // todo: move this into the upper scope.
