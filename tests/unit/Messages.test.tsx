@@ -1,11 +1,13 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import React from "react";
 import Messages from "../../src/components/Messages";
-import type { Message } from "ai";
 import type { Reference, RagError } from "../../src/lib/rag/types";
 
 // Extended message type with optional references
-interface MessageWithReferences extends Message {
+interface MessageWithReferences {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
   references?: Reference[];
   ragError?: RagError;
 }
@@ -14,7 +16,7 @@ describe("Messages component", () => {
   // Step 1: Tests for existing functionality
 
   it("renders user messages with user icon", () => {
-    const messages: Message[] = [
+    const messages: MessageWithReferences[] = [
       { id: "1", role: "user", content: "Hello there!" },
     ];
 
@@ -25,7 +27,7 @@ describe("Messages component", () => {
   });
 
   it("renders assistant messages with robot icon", () => {
-    const messages: Message[] = [
+    const messages: MessageWithReferences[] = [
       { id: "1", role: "assistant", content: "Hi! How can I help?" },
     ];
 
@@ -36,7 +38,7 @@ describe("Messages component", () => {
   });
 
   it("renders multiple messages in order", () => {
-    const messages: Message[] = [
+    const messages: MessageWithReferences[] = [
       { id: "1", role: "user", content: "First message" },
       { id: "2", role: "assistant", content: "Second message" },
       { id: "3", role: "user", content: "Third message" },
@@ -50,7 +52,7 @@ describe("Messages component", () => {
   });
 
   it("renders markdown content", () => {
-    const messages: Message[] = [
+    const messages: MessageWithReferences[] = [
       { id: "1", role: "assistant", content: "Here is **bold** text" },
     ];
 
