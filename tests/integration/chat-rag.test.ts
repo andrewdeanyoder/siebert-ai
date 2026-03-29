@@ -6,38 +6,23 @@ const {
   mockGenerateText,
   mockEmbed,
   mockEmbedding,
-  mockSelect,
-  mockFrom,
-  mockInnerJoin,
-  mockWhere,
-  mockOrderBy,
-  mockLimit,
+  mockQuerySimilarChunks,
+  mockQueryTopChunksForDebug,
 } = vi.hoisted(() => {
-  const mockLimit = vi.fn();
-  const mockOrderBy = vi.fn(() => ({ limit: mockLimit }));
-  const mockWhere = vi.fn(() => ({ orderBy: mockOrderBy }));
-  const mockInnerJoin = vi.fn(() => ({ where: mockWhere }));
-  const mockFrom = vi.fn(() => ({ innerJoin: mockInnerJoin }));
-  const mockSelect = vi.fn(() => ({ from: mockFrom }));
-  const mockGenerateText = vi.fn();
-  const mockEmbed = vi.fn();
-  const mockEmbedding = vi.fn().mockReturnValue("mocked-embedding-model");
   return {
-    mockGenerateText,
-    mockEmbed,
-    mockEmbedding,
-    mockSelect,
-    mockFrom,
-    mockInnerJoin,
-    mockWhere,
-    mockOrderBy,
-    mockLimit,
+    mockGenerateText: vi.fn(),
+    mockEmbed: vi.fn(),
+    mockEmbedding: vi.fn().mockReturnValue("mocked-embedding-model"),
+    mockQuerySimilarChunks: vi.fn(),
+    mockQueryTopChunksForDebug: vi.fn(),
   };
 });
 
 vi.mock("ai", () => ({
   generateText: mockGenerateText,
   embed: mockEmbed,
+  tool: (t: unknown) => t,
+  stepCountIs: vi.fn((n: number) => `stepCountIs-${n}`),
 }));
 
 vi.mock("@ai-sdk/openai", () => ({
@@ -46,10 +31,9 @@ vi.mock("@ai-sdk/openai", () => ({
   }),
 }));
 
-vi.mock("#/db", () => ({
-  db: {
-    select: mockSelect,
-  },
+vi.mock("#/db/queries", () => ({
+  querySimilarChunks: mockQuerySimilarChunks,
+  queryTopChunksForDebug: mockQueryTopChunksForDebug,
 }));
 
 // Import after mocks
@@ -68,12 +52,10 @@ describe("Chat API with RAG", () => {
     vi.restoreAllMocks();
   });
 
-  it("should retrieve chunks, inject context, and return references when relevant chunks exist", async () => {
-    // Arrange - mock embedding generation for query
+  it("should retrieve chunks via tool and return references", async () => {
     const queryEmbedding = new Array(1536).fill(0.5);
     mockEmbed.mockResolvedValue({ embedding: queryEmbedding });
 
-    // Arrange - mock database returning relevant chunks
     const mockChunks = [
       {
         id: "chunk-1",
@@ -102,36 +84,29 @@ describe("Chat API with RAG", () => {
         documentName: "anatomy-textbook.pdf",
       },
     ];
-    mockLimit.mockResolvedValue(mockChunks);
+    mockQuerySimilarChunks.mockResolvedValue(mockChunks);
+    mockQueryTopChunksForDebug.mockResolvedValue([]);
 
-    // Arrange - mock AI response
-    mockGenerateText.mockResolvedValue({
-      text: "The heart has four chambers: two atria and two ventricles.",
+    mockGenerateText.mockImplementation(async ({ tools }: { tools: { searchCourseContent: { execute: (args: { query: string }) => Promise<unknown> } } }) => {
+      await tools.searchCourseContent.execute({ query: "How many chambers does the heart have?" });
+      return { text: "The heart has four chambers: two atria and two ventricles." };
     });
 
     const request = new NextRequest("http://localhost:3000/api/chat", {
       method: "POST",
       body: JSON.stringify({
         messages: [
-          { role: "system", content: "You are a helpful tutor." },
-          { role: "user", content: "Hi, I'm studying anatomy." },
-          { role: "assistant", content: "Welcome! What topic would you like to explore?" },
           { role: "user", content: "How many chambers does the heart have?" },
         ],
       }),
     });
 
-    // Act
     const response = await POST(request);
     const data = await response.json();
 
-    // Assert - response includes content and references
     expect(response.status).toBe(200);
     expect(data.content).toBe("The heart has four chambers: two atria and two ventricles.");
-    expect(data.references).toBeDefined();
     expect(data.references).toHaveLength(2);
-
-    // Assert - references have correct structure
     expect(data.references[0]).toMatchObject({
       documentName: "anatomy-textbook.pdf",
       pageNumber: 1,
@@ -139,37 +114,21 @@ describe("Chat API with RAG", () => {
       similarity: 0.85,
     });
 
-    // Assert - embed was called with user query
     expect(mockEmbed).toHaveBeenCalledWith(
       expect.objectContaining({
         value: "How many chambers does the heart have?",
       })
     );
-
-    // Assert - generateText was called with context injected
-    expect(mockGenerateText).toHaveBeenCalledWith(
-      expect.objectContaining({
-        messages: expect.arrayContaining([
-          expect.objectContaining({ role: "system" }), // SYSTEM_PROMPT
-          expect.objectContaining({
-            role: "system",
-            content: expect.stringContaining("The heart has four chambers"),
-          }), // Context
-        ]),
-      })
-    );
   });
 
-  it("should work normally without references when no chunks match above threshold", async () => {
-    // Arrange - mock embedding generation
+  it("should return empty references when tool finds no matching chunks", async () => {
     mockEmbed.mockResolvedValue({ embedding: new Array(1536).fill(0.5) });
+    mockQuerySimilarChunks.mockResolvedValue([]);
+    mockQueryTopChunksForDebug.mockResolvedValue([]);
 
-    // Arrange - mock database returning no relevant chunks (empty array)
-    mockLimit.mockResolvedValue([]);
-
-    // Arrange - mock AI response
-    mockGenerateText.mockResolvedValue({
-      text: "I can help you with anatomy questions.",
+    mockGenerateText.mockImplementation(async ({ tools }: { tools: { searchCourseContent: { execute: (args: { query: string }) => Promise<unknown> } } }) => {
+      await tools.searchCourseContent.execute({ query: "Hello!" });
+      return { text: "I can help you with anatomy questions." };
     });
 
     const request = new NextRequest("http://localhost:3000/api/chat", {
@@ -179,74 +138,21 @@ describe("Chat API with RAG", () => {
       }),
     });
 
-    // Act
     const response = await POST(request);
     const data = await response.json();
 
-    // Assert - response works normally
     expect(response.status).toBe(200);
     expect(data.content).toBe("I can help you with anatomy questions.");
-
-    // Assert - no references or empty references array
     expect(data.references).toEqual([]);
-
-    // Assert - generateText was called without context injection
-    const generateTextCall = mockGenerateText.mock.calls[0]?.[0];
-    expect(generateTextCall).toBeDefined();
-    const systemMessages = generateTextCall.messages.filter(
-      (m: { role: string }) => m.role === "system"
-    );
-    // Should only have the main SYSTEM_PROMPT, not additional context
-    expect(systemMessages).toHaveLength(1);
-  });
-
-  it("should sort chunks by relevance and limit to MAX_RETRIEVAL_CHUNKS", async () => {
-    // Arrange
-    mockEmbed.mockResolvedValue({ embedding: new Array(1536).fill(0.5) });
-
-    // Create 7 chunks - should only use top 5 (MAX_RETRIEVAL_CHUNKS)
-    const mockChunks = Array.from({ length: 5 }, (_, i) => ({
-      id: `chunk-${i}`,
-      documentId: "doc-1",
-      content: `Content for chunk ${i}`,
-      embedding: new Array(1536).fill(0.5 - i * 0.05),
-      chunkIndex: i,
-      pageNumber: i + 1,
-      lineStart: null,
-      lineEnd: null,
-      createdAt: new Date(),
-      similarity: 0.95 - i * 0.05, // Descending similarity
-      documentName: "textbook.pdf",
-    }));
-    mockLimit.mockResolvedValue(mockChunks);
-
-    mockGenerateText.mockResolvedValue({ text: "Response text" });
-
-    const request = new NextRequest("http://localhost:3000/api/chat", {
-      method: "POST",
-      body: JSON.stringify({
-        messages: [{ role: "user", content: "Tell me about cells" }],
-      }),
-    });
-
-    // Act
-    const response = await POST(request);
-    const data = await response.json();
-
-    // Assert - only MAX_RETRIEVAL_CHUNKS (5) references returned
-    expect(data.references).toHaveLength(5);
-
-    // Assert - references are sorted by relevance (first should have highest similarity)
-    expect(data.references[0].snippet).toContain("chunk 0");
   });
 
   it("should degrade gracefully when retrieval fails", async () => {
-    // Arrange - mock embedding to throw error
-    mockEmbed.mockRejectedValue(new Error("Embedding service unavailable"));
+    mockEmbed.mockResolvedValue({ embedding: new Array(1536).fill(0.5) });
+    mockQuerySimilarChunks.mockRejectedValue(new Error("Database unavailable"));
 
-    // Arrange - mock AI response (should still work)
-    mockGenerateText.mockResolvedValue({
-      text: "I can still help you, though I cannot access course materials right now.",
+    mockGenerateText.mockImplementation(async ({ tools }: { tools: { searchCourseContent: { execute: (args: { query: string }) => Promise<unknown> } } }) => {
+      await tools.searchCourseContent.execute({ query: "What is a cell?" });
+      return { text: "I can still help you, though I cannot access course materials right now." };
     });
 
     const request = new NextRequest("http://localhost:3000/api/chat", {
@@ -256,18 +162,35 @@ describe("Chat API with RAG", () => {
       }),
     });
 
-    // Act
     const response = await POST(request);
     const data = await response.json();
 
-    // Assert - response still works
     expect(response.status).toBe(200);
     expect(data.content).toBeDefined();
-
-    // Assert - no references due to error
     expect(data.references).toEqual([]);
-
-    // Assert - generateText was still called (graceful degradation)
+    expect(data.ragError).toBeDefined();
     expect(mockGenerateText).toHaveBeenCalled();
+  });
+
+  it("should call generateText with searchCourseContent tool and stopWhen", async () => {
+    mockGenerateText.mockResolvedValue({ text: "Hello! How can I help?" });
+
+    const request = new NextRequest("http://localhost:3000/api/chat", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "Hi" }],
+      }),
+    });
+
+    await POST(request);
+
+    expect(mockGenerateText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tools: expect.objectContaining({
+          searchCourseContent: expect.any(Object),
+        }),
+        stopWhen: "stepCountIs-2",
+      })
+    );
   });
 });

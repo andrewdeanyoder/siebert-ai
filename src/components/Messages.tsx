@@ -1,10 +1,12 @@
-import { Message } from "ai";
 import { useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import References from "./References";
 import type { Reference, RagError } from "#/lib/rag/types";
 
-export interface MessageWithReferences extends Message {
+export interface MessageWithReferences {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
   references?: Reference[];
   ragError?: RagError;
 }
