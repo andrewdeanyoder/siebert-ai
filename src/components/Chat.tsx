@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Messages, { type MessageWithReferences } from "./Messages";
 import { MODEL } from "../lib/constants";
 import { LAST_UPDATED } from "../app/prompts";
@@ -13,11 +13,21 @@ export enum TtsMethod {
   Vosk = 'vosk',
 }
 
+const TEXTAREA_MAX_HEIGHT = 240;
+
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<MessageWithReferences[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [ttsMethod, setTtsMethod] = useState<TtsMethod>(TtsMethod.Deepgram);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, TEXTAREA_MAX_HEIGHT) + 'px';
+  }, [input]);
 
   // todo: move this into the upper scope.
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -55,6 +65,7 @@ const Chat: React.FC = () => {
         <div className="w-full relative">
           <div className="bg-gray-100 rounded-xl p-4 border border-gray-200 relative">
             <textarea
+              ref={textareaRef}
               className="w-full px-4 py-3 pr-28 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black text-base resize-none overflow-y-auto"
               value={input}
               onChange={handleInputChange}
@@ -63,7 +74,7 @@ const Chat: React.FC = () => {
               rows={1}
               style={{
                 minHeight: '48px',
-                maxHeight: '240px', // ~10 lines at 24px line height
+                maxHeight: `${TEXTAREA_MAX_HEIGHT}px`,
                 height: 'auto',
               }}
               onKeyDown={(e) => {
@@ -73,11 +84,6 @@ const Chat: React.FC = () => {
                     e.currentTarget.form?.requestSubmit();
                   }
                 }
-              }}
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = 'auto';
-                target.style.height = Math.min(target.scrollHeight, 240) + 'px';
               }}
             />
             <MicrophoneButton

@@ -92,4 +92,29 @@ describe('Chat keyboard submission', () => {
     // Assert — textarea retains content with a newline appended
     expect(textarea).toHaveValue('hello world\n')
   })
+
+  it('resets textarea height after submitting a message', async () => {
+    // Arrange
+    const user = userEvent.setup()
+    render(<Chat />)
+    const textarea = screen.getByPlaceholderText('Type your message...')
+
+    // Mock scrollHeight to return 120 when textarea has content, 0 when empty
+    Object.defineProperty(textarea, 'scrollHeight', {
+      configurable: true,
+      get(this: HTMLTextAreaElement) { return this.value ? 120 : 0; },
+    })
+
+    // Act — type to expand the textarea
+    await user.type(textarea, 'hello world')
+    expect(textarea.style.height).toBe('120px')
+
+    // Act — submit
+    await user.keyboard('{Enter}')
+
+    // Assert — height resets because input was cleared
+    await waitFor(() => {
+      expect(textarea.style.height).toBe('0px')
+    })
+  })
 })

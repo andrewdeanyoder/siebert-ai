@@ -25,6 +25,42 @@ describe('Chat microphone', () => {
     ;(globalThis as any).webkitSpeechRecognition = MockSpeechRecognition as any
   })
 
+  it('expands textarea height when transcript text is appended from microphone', async () => {
+    render(<Chat />)
+    const textarea = screen.getByPlaceholderText('Type your message...')
+
+    // Mock scrollHeight to return 96 when textarea has content, 0 when empty
+    Object.defineProperty(textarea, 'scrollHeight', {
+      configurable: true,
+      get(this: HTMLTextAreaElement) { return this.value ? 96 : 0; },
+    })
+
+    // Switch to browser TTS so MockSpeechRecognition is used
+    const dropdown = screen.getByRole('combobox', { name: /tts method/i })
+    fireEvent.change(dropdown, { target: { value: 'browser' } })
+
+    // Wait for the mic button to be enabled (speechSupported=true after effect)
+    const micButton = screen.getByRole('button', { name: /start recording/i })
+    await waitFor(() => expect(micButton).not.toBeDisabled())
+
+    // Start recording — this sets globalThis.__activeSR with onresult handler attached
+    fireEvent.click(micButton)
+
+    // Fire a transcript as if the user spoke
+    const activeSR = (globalThis as unknown as { __activeSR: { onresult: (e: unknown) => void } }).__activeSR
+    act(() => {
+      activeSR.onresult({
+        resultIndex: 0,
+        results: [{ isFinal: true, 0: { transcript: 'hello from mic' } }],
+      })
+    })
+
+    // Assert — textarea expanded without the user typing
+    await waitFor(() => {
+      expect(textarea.style.height).toBe('96px')
+    })
+  })
+
   it('displays TTS method dropdown with all four microphone options', async () => {
     render(<Chat />)
 
