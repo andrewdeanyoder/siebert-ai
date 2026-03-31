@@ -31,9 +31,14 @@ const setUpMicrophone = async (): Promise<MediaRecorder | null> => {
 };
 
 const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void, ttsMethod: TtsMethod) => {
-  const tokenResponse = await fetch('/api/token', {cache: 'no-store'});
-  const {access_token} = await tokenResponse.json();
+  const microphonePromise = setUpMicrophone();
+  const tokenPromise = fetch('/api/token', {cache: 'no-store'}).then(async res => await res.json());
+  let access_token: string | undefined;
+
+  [microphone, {access_token}] = await Promise.all([microphonePromise, tokenPromise]);
+
   if (!access_token) {
+    stopMicrophone();
     throw new Error('Failed to get Deepgram token');
   }
   let deepgramLiveConnection: ListenLiveClient | null = null;
@@ -81,7 +86,6 @@ const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void,
 
 // iOS SAFARI FIX: Prevent packetZero from being sent. If sent at size 0, the connection will close.
 const attachMicrophone = async (): Promise<void> => {
-  microphone = await setUpMicrophone();
   if (microphone && deepGramConnection) {
     microphone.addEventListener('dataavailable', (e: BlobEvent) => {
       if (e.data.size > 0) {
