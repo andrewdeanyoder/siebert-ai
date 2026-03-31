@@ -119,7 +119,7 @@ const Chat: React.FC = () => {
             </button>
           </div>
           <div className="mt-3 flex justify-center items-center gap-2">
-            <span className="text-white text-sm">Voice Recognition:</span>
+            <span className="text-black dark:text-white text-sm">Voice Recognition:</span>
             <select
               value={ttsMethod}
               onChange={(e) => setTtsMethod(e.target.value as TtsMethod)}
@@ -133,8 +133,8 @@ const Chat: React.FC = () => {
             </select>
           </div>
           <div className="text-center mt-2">
-            <span className="text-white text-sm">Powered by {MODEL}</span>
-            <div className="text-white text-sm mt-1">
+            <span className="text-black dark:text-white text-sm">Powered by {MODEL}</span>
+            <div className="text-black dark:text-white text-sm mt-1">
               System Prompt last updated {new Date(LAST_UPDATED).toLocaleDateString()}
             </div>
           </div>
