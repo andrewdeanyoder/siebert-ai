@@ -5,6 +5,7 @@ import { MODEL } from "../lib/constants";
 import { LAST_UPDATED } from "../app/prompts";
 import submitMessages from "../lib/http/submitMessages";
 import MicrophoneButton from "./MicrophoneButton";
+import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 
 export enum TtsMethod {
   Deepgram = 'deepgram',
@@ -22,6 +23,17 @@ const Chat: React.FC = () => {
   const [ttsMethod, setTtsMethod] = useState<TtsMethod>(TtsMethod.Deepgram);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const { recordingState, speechSupported, toggleRecording, pauseForSubmit, resumeAfterResponse } =
+    useSpeechRecognition(
+      (transcript: string) => {
+        setInput(prev => {
+          const space = prev ? " " : "";
+          return (prev + space + transcript).trim();
+        });
+      },
+      ttsMethod
+    );
+
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -30,7 +42,6 @@ const Chat: React.FC = () => {
     el.scrollTop = el.scrollHeight;
   }, [input]);
 
-  // todo: move this into the upper scope.
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
   };
@@ -38,6 +49,8 @@ const Chat: React.FC = () => {
   const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
+
+    pauseForSubmit();
 
     const userMessage: MessageWithReferences = {
       id: Date.now().toString(),
@@ -52,6 +65,8 @@ const Chat: React.FC = () => {
     // todo: move this into a http helper that returns parsed data or an error message
     const newMessage = await submitMessages(messages, userMessage, setMessages, setIsLoading);
     setMessages(prev => [...prev, newMessage]);
+
+    await resumeAfterResponse();
   };
 
   return (
@@ -89,14 +104,9 @@ const Chat: React.FC = () => {
             />
             <MicrophoneButton
               isLoading={isLoading}
-              onTranscript={(transcript: string) => {
-                setInput(prev => {
-                  const space = prev ? " " : "";
-
-                  return (prev + space + transcript).trim()
-                });
-              }}
-              ttsMethod={ttsMethod}
+              recordingState={recordingState}
+              speechSupported={speechSupported}
+              onToggle={toggleRecording}
             />
             <button
               type="submit"

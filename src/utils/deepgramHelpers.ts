@@ -6,6 +6,7 @@ import { TtsMethod } from '../components/Chat';
 
 let deepGramConnection: ListenLiveClient | null = null;
 let microphone: MediaRecorder | null = null;
+let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
 
 const setUpMicrophone = async (): Promise<MediaRecorder | null> => {
   try {
@@ -78,6 +79,19 @@ const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void,
   });
 }
 
+// iOS SAFARI FIX: Prevent packetZero from being sent. If sent at size 0, the connection will close.
+const attachMicrophone = async (): Promise<void> => {
+  microphone = await setUpMicrophone();
+  if (microphone && deepGramConnection) {
+    microphone.addEventListener('dataavailable', (e: BlobEvent) => {
+      if (e.data.size > 0) {
+        deepGramConnection?.send(e.data);
+      }
+    });
+    microphone.start(250);
+  }
+};
+
 export const startDeepgramRecording = async (
   setRecordingState: (state: RecordingState) => void,
   onTranscript: (transcript: string) => void,
@@ -86,10 +100,9 @@ export const startDeepgramRecording = async (
   try {
     console.log('Starting Deepgram recording...');
 
-    microphone = await setUpMicrophone();
     deepGramConnection = await setUpDeepgram(setRecordingState, ttsMethod);
 
-    if(deepGramConnection && microphone) {
+    if (deepGramConnection) {
       deepGramConnection.addListener(LiveTranscriptionEvents.Transcript, (data: LiveTranscriptionEvent) => {
         const { is_final: isFinal } = data;
         const thisCaption = data.channel.alternatives[0]?.transcript;
@@ -99,15 +112,7 @@ export const startDeepgramRecording = async (
         }
       });
 
-      microphone.addEventListener('dataavailable', (e: BlobEvent) => {
-        // iOS SAFARI FIX:
-        // Prevent packetZero from being sent. If sent at size 0, the connection will close.
-        if (e.data.size > 0) {
-          deepGramConnection?.send(e.data);
-        }
-      });
-
-       microphone?.start(250);
+      await attachMicrophone();
     }
 
     console.log('Deepgram recording started successfully');
@@ -128,10 +133,31 @@ const stopMicrophone = () => {
   }
 };
 
-export const stopDeepgramRecording = () => {
+const clearKeepAlive = (): void => {
+  if (keepAliveInterval) {
+    clearInterval(keepAliveInterval);
+    keepAliveInterval = null;
+  }
+};
+
+export const pauseMicrophone = (): void => {
+  stopMicrophone();
+  keepAliveInterval = setInterval(() => {
+    deepGramConnection?.keepAlive();
+  }, 5000);
+};
+
+export const resumeDeepgramMicrophone = async (): Promise<void> => {
+  if (!deepGramConnection) return;
+  clearKeepAlive();
+  await attachMicrophone();
+};
+
+export const stopDeepgramRecording = (): void => {
   console.log('Stopping Deepgram recording...');
 
   try {
+    clearKeepAlive();
     stopMicrophone();
 
     if (deepGramConnection) {

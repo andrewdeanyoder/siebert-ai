@@ -1,11 +1,11 @@
 import React from "react";
-import { useSpeechRecognition, RecordingState } from "../hooks/useSpeechRecognition";
-import { TtsMethod } from "./Chat";
+import { RecordingState } from "../hooks/useSpeechRecognition";
 
 interface MicrophoneButtonProps {
   isLoading: boolean;
-  onTranscript: (transcript: string) => void;
-  ttsMethod: TtsMethod;
+  recordingState: RecordingState;
+  speechSupported: boolean;
+  onToggle: () => void;
 }
 
 const getButtonContent = (recordingState: RecordingState): React.ReactElement => {
@@ -25,6 +25,7 @@ const getButtonContent = (recordingState: RecordingState): React.ReactElement =>
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
         </svg>
       );
+    case RecordingState.Paused:
     case RecordingState.Stopped:
     default:
       return (
@@ -44,6 +45,7 @@ const getButtonStyles = (recordingState: RecordingState): string => {
       return "bg-red-500 hover:bg-red-600 border-red-600";
     case RecordingState.Error:
       return "bg-orange-500 hover:bg-orange-600 border-orange-600";
+    case RecordingState.Paused:
     case RecordingState.Stopped:
     default:
       return "bg-blue-500 hover:bg-blue-600 border-blue-500";
@@ -55,6 +57,7 @@ const getAriaLabel = (recordingState: RecordingState): string => {
     case RecordingState.Loading: return "Loading microphone";
     case RecordingState.Recording: return "Stop recording";
     case RecordingState.Error: return "Recording error - click to retry";
+    case RecordingState.Paused:
     case RecordingState.Stopped:
     default: return "Start recording";
   }
@@ -67,6 +70,7 @@ const getTitle = (recordingState: RecordingState, speechSupported: boolean): str
     case RecordingState.Loading: return "Connecting to microphone...";
     case RecordingState.Recording: return "Stop recording";
     case RecordingState.Error: return "Recording error occurred - click to retry";
+    case RecordingState.Paused:
     case RecordingState.Stopped:
     default: return "Start recording";
   }
@@ -74,15 +78,14 @@ const getTitle = (recordingState: RecordingState, speechSupported: boolean): str
 
 const MicrophoneButton: React.FC<MicrophoneButtonProps> = ({
   isLoading,
-  onTranscript,
-  ttsMethod,
+  recordingState,
+  speechSupported,
+  onToggle,
 }) => {
-  const { recordingState, speechSupported, toggleRecording } = useSpeechRecognition(onTranscript, ttsMethod);
-
   return (
     <button
       type="button"
-      onClick={toggleRecording}
+      onClick={onToggle}
       disabled={isLoading || !speechSupported}
       aria-label={getAriaLabel(recordingState)}
       title={getTitle(recordingState, speechSupported)}
