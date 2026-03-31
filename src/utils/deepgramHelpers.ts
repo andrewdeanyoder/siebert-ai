@@ -86,6 +86,9 @@ const setUpDeepgram = async (setRecordingState: (state: RecordingState) => void,
 
 // iOS SAFARI FIX: Prevent packetZero from being sent. If sent at size 0, the connection will close.
 const attachMicrophone = async (): Promise<void> => {
+  if(!microphone){
+    microphone = await setUpMicrophone();
+  }
   if (microphone && deepGramConnection) {
     microphone.addEventListener('dataavailable', (e: BlobEvent) => {
       if (e.data.size > 0) {
@@ -153,8 +156,8 @@ export const pauseMicrophone = (): void => {
 
 export const resumeDeepgramMicrophone = async (): Promise<void> => {
   if (!deepGramConnection) return;
-  clearKeepAlive();
   await attachMicrophone();
+  clearKeepAlive();
 };
 
 export const stopDeepgramRecording = (): void => {
