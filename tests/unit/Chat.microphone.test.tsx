@@ -1,17 +1,26 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import React from 'react'
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import Chat from '../../src/components/Chat'
+
+vi.mock('../../src/utils/deepgramHelpers', () => ({
+  startDeepgramRecording: vi.fn(),
+  stopDeepgramRecording: vi.fn(),
+  pauseMicrophone: vi.fn(),
+  resumeDeepgramMicrophone: vi.fn().mockResolvedValue(undefined),
+}))
 
 class MockSpeechRecognition {
   public continuous: boolean = false
   public interimResults: boolean = false
   public lang: string = 'en-US'
-  public onresult: ((event: any) => void) | null = null
+  public onresult: ((event: unknown) => void) | null = null
   public onend: (() => void) | null = null
-  public onerror: ((event: any) => void) | null = null
+  public onerror: ((event: unknown) => void) | null = null
 
   start() {
-    ;(globalThis as any).__activeSR = this
+    (globalThis as unknown as Record<string, unknown>).__activeSR = this
   }
 
   stop() {
@@ -21,8 +30,56 @@ class MockSpeechRecognition {
 
 describe('Chat microphone', () => {
   beforeEach(() => {
-    ;(globalThis as any).SpeechRecognition = MockSpeechRecognition as any
-    ;(globalThis as any).webkitSpeechRecognition = MockSpeechRecognition as any
+    ;(globalThis as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition
+    ;(globalThis as unknown as Record<string, unknown>).webkitSpeechRecognition = MockSpeechRecognition
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        id: 'ai-1',
+        role: 'assistant',
+        content: 'AI response',
+      }),
+    }))
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('expands textarea height when transcript text is appended from microphone', async () => {
+    render(<Chat />)
+    const textarea = screen.getByPlaceholderText('Type your message...')
+
+    // Mock scrollHeight to return 96 when textarea has content, 0 when empty
+    Object.defineProperty(textarea, 'scrollHeight', {
+      configurable: true,
+      get(this: HTMLTextAreaElement) { return this.value ? 96 : 0; },
+    })
+
+    // Switch to browser TTS so MockSpeechRecognition is used
+    const dropdown = screen.getByRole('combobox', { name: /tts method/i })
+    const user = userEvent.setup()
+    await user.selectOptions(dropdown, 'browser')
+
+    // Wait for the mic button to be enabled (speechSupported=true after effect)
+    const micButton = screen.getByRole('button', { name: /start recording/i })
+    await waitFor(() => expect(micButton).not.toBeDisabled())
+
+    // Start recording — this sets globalThis.__activeSR with onresult handler attached
+    await user.click(micButton)
+
+    // Fire a transcript as if the user spoke
+    const activeSR = (globalThis as unknown as { __activeSR: { onresult: (e: unknown) => void } }).__activeSR
+    activeSR.onresult({
+      resultIndex: 0,
+      results: [{ isFinal: true, 0: { transcript: 'hello from mic' } }],
+    })
+
+    // Assert — textarea expanded without the user typing
+    await waitFor(() => {
+      expect(textarea.style.height).toBe('96px')
+    })
   })
 
   it('displays TTS method dropdown with all four microphone options', async () => {
@@ -46,7 +103,8 @@ describe('Chat microphone', () => {
     expect(dropdown).toHaveValue('deepgram')
 
     // Select Vosk option
-    fireEvent.change(dropdown, { target: { value: 'vosk' } })
+    const user = userEvent.setup()
+    await user.selectOptions(dropdown, 'vosk')
 
     // Vosk should now be selected
     expect(dropdown).toHaveValue('vosk')
@@ -55,7 +113,60 @@ describe('Chat microphone', () => {
     expect(micButton).toBeInTheDocument()
   })
 
+  it('stops browser recording when form is submitted', async () => {
+    const user = userEvent.setup()
 
+    render(<Chat />)
+    const dropdown = screen.getByRole('combobox', { name: /tts method/i })
+    await user.selectOptions(dropdown, 'browser')
+
+    const micButton = screen.getByRole('button', { name: /start recording/i })
+    await waitFor(() => expect(micButton).not.toBeDisabled())
+    await user.click(micButton)
+
+    const textarea = screen.getByPlaceholderText('Type your message...')
+    await user.type(textarea, 'hello')
+    await user.keyboard('{Enter}')
+
+    // Assert: recording state goes back to Stopped (not Paused)
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /start recording/i })).toBeInTheDocument()
+    )
+  })
+
+  it('pauses deepgram mic on submit without calling stopDeepgramRecording', async () => {
+    const user = userEvent.setup()
+    const { pauseMicrophone, stopDeepgramRecording } =
+      await import('../../src/utils/deepgramHelpers')
+
+    render(<Chat />)
+    // Clear calls from component mount/StrictMode lifecycle before testing submit behavior
+    vi.clearAllMocks()
+
+    const textarea = screen.getByPlaceholderText('Type your message...')
+    await user.type(textarea, 'test message')
+    await user.keyboard('{Enter}')
+
+    await waitFor(() => {
+      expect(pauseMicrophone).toHaveBeenCalled()
+      expect(stopDeepgramRecording).not.toHaveBeenCalled()
+    })
+  })
+
+  it('resumes deepgram mic after response is received', async () => {
+    const user = userEvent.setup()
+    const { resumeDeepgramMicrophone } =
+      await import('../../src/utils/deepgramHelpers')
+
+    render(<Chat />)
+    vi.clearAllMocks()
+
+    const textarea = screen.getByPlaceholderText('Type your message...')
+    await user.type(textarea, 'test message')
+    await user.keyboard('{Enter}')
+
+    await waitFor(() => {
+      expect(resumeDeepgramMicrophone).toHaveBeenCalled()
+    })
+  })
 })
-
-

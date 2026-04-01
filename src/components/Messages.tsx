@@ -1,10 +1,12 @@
-import { Message } from "ai";
 import { useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import References from "./References";
 import type { Reference, RagError } from "#/lib/rag/types";
 
-export interface MessageWithReferences extends Message {
+export interface MessageWithReferences {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
   references?: Reference[];
   ragError?: RagError;
 }
@@ -25,13 +27,13 @@ export default function Messages({ messages }: { messages: MessageWithReferences
       {messages.map((msg, index) => (
         <div
           key={index}
-          className={"p-4 rounded-lg bg-black text-white border border-gray-600"}
+          className={"p-4 rounded-lg bg-white dark:bg-black text-gray-950 dark:text-white border border-gray-400 dark:border-gray-600"}
         >
           <div className="flex items-start gap-3">
             <div className="text-lg">
               {msg.role === "assistant" ? "🤖" : "🧑‍💻"}
             </div>
-            <div className="flex-1 prose prose-base max-w-none prose-invert">
+            <div className="flex-1 prose prose-base max-w-none dark:prose-invert">
               <ReactMarkdown>{msg.content}</ReactMarkdown>
             </div>
           </div>

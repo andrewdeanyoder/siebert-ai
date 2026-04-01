@@ -1,10 +1,11 @@
 "use client"
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Messages, { type MessageWithReferences } from "./Messages";
 import { MODEL } from "../lib/constants";
 import { LAST_UPDATED } from "../app/prompts";
 import submitMessages from "../lib/http/submitMessages";
 import MicrophoneButton from "./MicrophoneButton";
+import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 
 export enum TtsMethod {
   Deepgram = 'deepgram',
@@ -13,13 +14,34 @@ export enum TtsMethod {
   Vosk = 'vosk',
 }
 
+const TEXTAREA_MAX_HEIGHT = 240;
+
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<MessageWithReferences[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [ttsMethod, setTtsMethod] = useState<TtsMethod>(TtsMethod.Deepgram);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // todo: move this into the upper scope.
+  const { recordingState, speechSupported, toggleRecording, pauseForSubmit, resumeAfterResponse } =
+    useSpeechRecognition(
+      (transcript: string) => {
+        setInput(prev => {
+          const space = prev ? " " : "";
+          return (prev + space + transcript).trim();
+        });
+      },
+      ttsMethod
+    );
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, TEXTAREA_MAX_HEIGHT) + 'px';
+    el.scrollTop = el.scrollHeight;
+  }, [input]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
   };
@@ -27,6 +49,8 @@ const Chat: React.FC = () => {
   const handleMessageSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
+
+    pauseForSubmit();
 
     const userMessage: MessageWithReferences = {
       id: Date.now().toString(),
@@ -41,6 +65,8 @@ const Chat: React.FC = () => {
     // todo: move this into a http helper that returns parsed data or an error message
     const newMessage = await submitMessages(messages, userMessage, setMessages, setIsLoading);
     setMessages(prev => [...prev, newMessage]);
+
+    await resumeAfterResponse();
   };
 
   return (
@@ -55,6 +81,7 @@ const Chat: React.FC = () => {
         <div className="w-full relative">
           <div className="bg-gray-100 rounded-xl p-4 border border-gray-200 relative">
             <textarea
+              ref={textareaRef}
               className="w-full px-4 py-3 pr-28 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black text-base resize-none overflow-y-auto"
               value={input}
               onChange={handleInputChange}
@@ -63,7 +90,7 @@ const Chat: React.FC = () => {
               rows={1}
               style={{
                 minHeight: '48px',
-                maxHeight: '240px', // ~10 lines at 24px line height
+                maxHeight: `${TEXTAREA_MAX_HEIGHT}px`,
                 height: 'auto',
               }}
               onKeyDown={(e) => {
@@ -74,22 +101,12 @@ const Chat: React.FC = () => {
                   }
                 }
               }}
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = 'auto';
-                target.style.height = Math.min(target.scrollHeight, 240) + 'px';
-              }}
             />
             <MicrophoneButton
               isLoading={isLoading}
-              onTranscript={(transcript: string) => {
-                setInput(prev => {
-                  const space = prev ? " " : "";
-
-                  return (prev + space + transcript).trim()
-                });
-              }}
-              ttsMethod={ttsMethod}
+              recordingState={recordingState}
+              speechSupported={speechSupported}
+              onToggle={toggleRecording}
             />
             <button
               type="submit"
@@ -102,7 +119,7 @@ const Chat: React.FC = () => {
             </button>
           </div>
           <div className="mt-3 flex justify-center items-center gap-2">
-            <span className="text-white text-sm">Voice Recognition:</span>
+            <span className="text-black dark:text-white text-sm">Voice Recognition:</span>
             <select
               value={ttsMethod}
               onChange={(e) => setTtsMethod(e.target.value as TtsMethod)}
@@ -116,8 +133,8 @@ const Chat: React.FC = () => {
             </select>
           </div>
           <div className="text-center mt-2">
-            <span className="text-white text-sm">Powered by {MODEL}</span>
-            <div className="text-white text-sm mt-1">
+            <span className="text-black dark:text-white text-sm">Powered by {MODEL}</span>
+            <div className="text-black dark:text-white text-sm mt-1">
               System Prompt last updated {new Date(LAST_UPDATED).toLocaleDateString()}
             </div>
           </div>

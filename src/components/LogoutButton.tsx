@@ -10,7 +10,7 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="px-4 py-2 bg-black text-white border border-white rounded hover:bg-gray-800 transition-colors"
+      className="px-4 py-2 bg-white dark:bg-black text-gray-900 dark:text-white border border-gray-900 dark:border-white rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
       aria-label="Log Out"
     >
       Log Out
