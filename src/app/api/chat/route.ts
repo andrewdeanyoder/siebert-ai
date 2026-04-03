@@ -1,4 +1,4 @@
-import { generateText } from "ai";
+import { streamText, StreamData } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { SYSTEM_PROMPT } from "../../prompts";
 import { MODEL } from "../../../lib/constants";
@@ -54,20 +54,18 @@ export async function POST(req: Request) {
       ...messages,
     ];
 
-    // Ask OpenAI for a complete chat completion given the prompt
-    const response = await generateText({
+    // Stream the response and attach references as data.
+    // JSON.parse/stringify round-trip converts typed interfaces to plain JSONValue.
+    const streamData = new StreamData();
+    streamData.append(JSON.parse(JSON.stringify({ references, ...(ragError && { ragError }) })));
+
+    const result = streamText({
       model: openai(MODEL),
       messages: messagesWithContext,
+      onFinish: () => streamData.close(),
     });
 
-    // Return the complete response as JSON with references
-    return Response.json({
-      id: Date.now().toString(),
-      role: "assistant",
-      content: response.text,
-      references,
-      ...(ragError && { ragError }),
-    });
+    return result.toDataStreamResponse({ data: streamData });
   } catch (e) {
     console.error('error in chat route', e);
     return Response.json(

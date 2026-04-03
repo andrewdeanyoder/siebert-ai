@@ -4,6 +4,7 @@ import React from 'react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import Chat from '../../src/components/Chat'
 
+// todo: can we move these mocks deeper, say to the boundary with the Deepgram sdk?
 vi.mock('../../src/utils/deepgramHelpers', () => ({
   startDeepgramRecording: vi.fn(),
   stopDeepgramRecording: vi.fn(),
@@ -33,12 +34,14 @@ describe('Chat microphone', () => {
     ;(globalThis as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition
     ;(globalThis as unknown as Record<string, unknown>).webkitSpeechRecognition = MockSpeechRecognition
 
+    const streamBody = '0:"AI response"\nd:{"finishReason":"stop"}\n'
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
-      json: vi.fn().mockResolvedValue({
-        id: 'ai-1',
-        role: 'assistant',
-        content: 'AI response',
+      body: new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(streamBody))
+          controller.close()
+        },
       }),
     }))
   })

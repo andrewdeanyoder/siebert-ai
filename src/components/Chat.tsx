@@ -60,11 +60,32 @@ const Chat: React.FC = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInput("");
-    setIsLoading(true);
 
-    // todo: move this into a http helper that returns parsed data or an error message
-    const newMessage = await submitMessages(messages, userMessage, setMessages, setIsLoading);
-    setMessages(prev => [...prev, newMessage]);
+    const streamingId = `${Date.now()}-ai`;
+    setIsLoading(true);
+    setMessages(prev => [...prev, { id: streamingId, role: "assistant" as const, content: "" }]);
+
+    await submitMessages(
+      messages,
+      userMessage,
+      (chunk) => {
+        setMessages(prev =>
+          prev.map(m => m.id === streamingId ? { ...m, content: m.content + chunk } : m)
+        );
+      },
+      (references, ragError) => {
+        setMessages(prev =>
+          prev.map(m => {
+            if (m.id !== streamingId) return m;
+            const updated: MessageWithReferences = { ...m };
+            if (references.length > 0) updated.references = references;
+            if (ragError) updated.ragError = ragError;
+            return updated;
+          })
+        );
+        setIsLoading(false);
+      }
+    );
 
     await resumeAfterResponse();
   };

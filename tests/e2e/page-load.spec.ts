@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test'
 import { loginUser } from './utils/auth'
 import { selectors } from './utils/selectors'
 import { MODEL } from '../../src/lib/constants'
-import { LAST_UPDATED } from '../../src/app/prompts'
 
 test.describe('Authentication & Initial Page Load', () => {
   test('should redirect to login page when not authenticated', async ({ page }) => {

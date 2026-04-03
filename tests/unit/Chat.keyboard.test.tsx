@@ -28,11 +28,12 @@ describe('Chat keyboard submission', () => {
   beforeEach(() => {
     ;(globalThis as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition
     ;(globalThis as unknown as Record<string, unknown>).webkitSpeechRecognition = MockSpeechRecognition
-    mockSubmitMessages.mockResolvedValue({
-      id: '99',
-      role: 'assistant',
-      content: 'AI response',
-    })
+    mockSubmitMessages.mockImplementation(
+      async (_msgs: unknown, _userMsg: unknown, onChunk: (t: string) => void, onComplete: (refs: []) => void) => {
+        onChunk('AI response')
+        onComplete([])
+      }
+    )
   })
 
   afterEach(vi.clearAllMocks)
