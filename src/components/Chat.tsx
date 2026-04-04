@@ -93,11 +93,6 @@ const Chat: React.FC = () => {
   return (
     <div id="chat" className="w-full max-w-4xl mx-auto">
       <Messages messages={messages} />
-      {isLoading && (
-        <div className="text-center py-4 text-gray-600">
-          <span>AI is thinking...</span>
-        </div>
-      )}
       <form onSubmit={handleMessageSubmit} className="w-full">
         <div className="w-full relative">
           <div className="bg-gray-100 rounded-xl p-4 border border-gray-200 relative">

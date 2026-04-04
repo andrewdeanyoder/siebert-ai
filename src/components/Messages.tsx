@@ -34,7 +34,11 @@ export default function Messages({ messages }: { messages: MessageWithReferences
               {msg.role === "assistant" ? "🤖" : "🧑‍💻"}
             </div>
             <div className="flex-1 prose prose-base max-w-none dark:prose-invert">
-              <ReactMarkdown>{msg.content}</ReactMarkdown>
+              {msg.role === "assistant" && msg.content === "" ? (
+                <p className="animate-pulse">AI is thinking...</p>
+              ) : (
+                <ReactMarkdown>{msg.content}</ReactMarkdown>
+              )}
             </div>
           </div>
           {msg.role === "assistant" && ((msg.references && msg.references.length > 0) || msg.ragError) && (
