@@ -87,6 +87,7 @@ export const useSpeechRecognition = (onTranscript: (transcript: string) => void,
   };
 
   const pauseForSubmit = (): void => {
+    if (!isRecordingOrLoading) return;
     if (ttsMethod === TtsMethod.Deepgram || ttsMethod === TtsMethod.DeepgramMedical) {
       pauseMicrophone();
       setRecordingState(RecordingState.Paused);

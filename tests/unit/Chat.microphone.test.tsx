@@ -143,7 +143,10 @@ describe('Chat microphone', () => {
       await import('../../src/utils/deepgramHelpers')
 
     render(<Chat />)
-    // Clear calls from component mount/StrictMode lifecycle before testing submit behavior
+    // Start recording first so there is something to pause on submit
+    const micButton = screen.getByRole('button', { name: /start recording/i })
+    await waitFor(() => expect(micButton).not.toBeDisabled())
+    await user.click(micButton)
     vi.clearAllMocks()
 
     const textarea = screen.getByPlaceholderText('Type your message...')
@@ -162,6 +165,10 @@ describe('Chat microphone', () => {
       await import('../../src/utils/deepgramHelpers')
 
     render(<Chat />)
+    // Start recording first so resumeAfterResponse has something to resume
+    const micButton = screen.getByRole('button', { name: /start recording/i })
+    await waitFor(() => expect(micButton).not.toBeDisabled())
+    await user.click(micButton)
     vi.clearAllMocks()
 
     const textarea = screen.getByPlaceholderText('Type your message...')
@@ -171,5 +178,28 @@ describe('Chat microphone', () => {
     await waitFor(() => {
       expect(resumeDeepgramMicrophone).toHaveBeenCalled()
     })
+  })
+
+  it('does not pause or resume microphone when submitting without recording', async () => {
+    const user = userEvent.setup()
+    const { pauseMicrophone, resumeDeepgramMicrophone } =
+      await import('../../src/utils/deepgramHelpers')
+
+    render(<Chat />)
+    vi.clearAllMocks()
+
+    // Default TTS is Deepgram; mic is in Stopped state (never clicked)
+    const textarea = screen.getByPlaceholderText('Type your message...')
+    await user.type(textarea, 'hello')
+    await user.keyboard('{Enter}')
+
+    await waitFor(() => {
+      expect(screen.getByText('AI response')).toBeInTheDocument()
+    })
+
+    expect(pauseMicrophone).not.toHaveBeenCalled()
+    expect(resumeDeepgramMicrophone).not.toHaveBeenCalled()
+    // Mic button should still show "Start recording" (Stopped state), not "Stop recording" (Recording state)
+    expect(screen.getByRole('button', { name: 'Start recording' })).toBeInTheDocument()
   })
 })
