@@ -52,6 +52,11 @@ vi.mock("@ai-sdk/openai", () => ({
   }),
 }));
 
+vi.mock("#/lib/constants", async (importOriginal) => {
+  const original = await importOriginal<typeof import("#/lib/constants")>();
+  return { ...original, RAG_ENABLED: true };
+});
+
 vi.mock("#/db", () => ({
   db: {
     select: mockSelect,

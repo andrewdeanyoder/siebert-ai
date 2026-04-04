@@ -1,7 +1,7 @@
 import { streamText, StreamData } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { SYSTEM_PROMPT } from "../../prompts";
-import { MODEL } from "../../../lib/constants";
+import { MODEL, RAG_ENABLED } from "../../../lib/constants";
 import { retrieveRelevantChunks } from "#/lib/rag/retrieval";
 import { formatContextMessage, chunksToReferences } from "#/lib/rag/context";
 import type { RagError, Reference, RetrievedChunk } from "#/lib/rag/types";
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     let references: Reference[] = [];
     let ragError: RagError | undefined;
 
-    if (lastUserMessage?.content) {
+    if (RAG_ENABLED && lastUserMessage?.content) {
       console.log("[CHAT] Starting RAG retrieval for user message:", lastUserMessage.content.substring(0, 100));
       try {
         relevantChunks = await retrieveRelevantChunks(lastUserMessage.content);
@@ -42,8 +42,6 @@ export async function POST(req: Request) {
           message: error instanceof Error ? error.message : String(error),
         };
       }
-    } else {
-      console.log("[CHAT] No user message found for RAG retrieval");
     }
 
     // Build messages with optional context injection
