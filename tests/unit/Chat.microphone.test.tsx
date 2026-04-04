@@ -127,6 +127,11 @@ describe('Chat microphone', () => {
     await waitFor(() => expect(micButton).not.toBeDisabled())
     await user.click(micButton)
 
+    // After clicking, mic should be active
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /stop recording/i })).toBeInTheDocument()
+    )
+
     const textarea = screen.getByPlaceholderText('Type your message...')
     await user.type(textarea, 'hello')
     await user.keyboard('{Enter}')
@@ -137,9 +142,9 @@ describe('Chat microphone', () => {
     )
   })
 
-  it('pauses deepgram mic on submit without calling stopDeepgramRecording', async () => {
+  it('pauses deepgram mic on submit and resumes after response, without calling stopDeepgramRecording', async () => {
     const user = userEvent.setup()
-    const { pauseMicrophone, stopDeepgramRecording } =
+    const { pauseMicrophone, stopDeepgramRecording, resumeDeepgramMicrophone } =
       await import('../../src/utils/deepgramHelpers')
 
     render(<Chat />)
@@ -147,6 +152,11 @@ describe('Chat microphone', () => {
     const micButton = screen.getByRole('button', { name: /start recording/i })
     await waitFor(() => expect(micButton).not.toBeDisabled())
     await user.click(micButton)
+
+    // After clicking, mic should be in Loading state
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /loading microphone/i })).toBeInTheDocument()
+    )
     vi.clearAllMocks()
 
     const textarea = screen.getByPlaceholderText('Type your message...')
@@ -156,28 +166,13 @@ describe('Chat microphone', () => {
     await waitFor(() => {
       expect(pauseMicrophone).toHaveBeenCalled()
       expect(stopDeepgramRecording).not.toHaveBeenCalled()
-    })
-  })
-
-  it('resumes deepgram mic after response is received', async () => {
-    const user = userEvent.setup()
-    const { resumeDeepgramMicrophone } =
-      await import('../../src/utils/deepgramHelpers')
-
-    render(<Chat />)
-    // Start recording first so resumeAfterResponse has something to resume
-    const micButton = screen.getByRole('button', { name: /start recording/i })
-    await waitFor(() => expect(micButton).not.toBeDisabled())
-    await user.click(micButton)
-    vi.clearAllMocks()
-
-    const textarea = screen.getByPlaceholderText('Type your message...')
-    await user.type(textarea, 'test message')
-    await user.keyboard('{Enter}')
-
-    await waitFor(() => {
       expect(resumeDeepgramMicrophone).toHaveBeenCalled()
     })
+
+    // After response, mic should be back in Recording state
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /stop recording/i })).toBeInTheDocument()
+    )
   })
 
   it('does not pause or resume microphone when submitting without recording', async () => {
