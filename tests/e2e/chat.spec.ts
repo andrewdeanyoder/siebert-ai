@@ -3,7 +3,7 @@ import { loginUser } from './utils/auth'
 import { selectors } from './utils/selectors'
 
 const MOCK_STREAM = [
-  '2:[{"references":[{"documentName":"anatomy.pdf","pageNumber":1,"snippet":"The heart has four chambers.","similarity":0.9}]}]\n',
+  '2:[{"references":[{"documentName":"anatomy.pdf","pageNumber":1,"snippet":"The heart has four chambers.","similarity":0.9},{"documentName":"physiology.pdf","pageNumber":3,"snippet":"The ventricles pump blood.","similarity":0.75}]}]\n',
   '0:"The "\n',
   '0:"heart "\n',
   '0:"has "\n',
@@ -48,8 +48,21 @@ test.describe('Chat', () => {
     await page.keyboard.press('Enter')
 
     await expect(page.locator('text=The heart has four chambers.')).toBeVisible({ timeout: 10000 })
-    // References section shows "1 source" toggle (collapsed by default)
-    await expect(page.locator('text=1 source')).toBeVisible()
+
+    // Toggle is collapsed by default showing the source count
+    await expect(page.locator('text=2 sources')).toBeVisible()
+
+    // Expand references
+    await page.getByRole('button', { name: /2 sources/ }).click()
+
+    // Both references should now be visible with correct metadata
+    await expect(page.locator('text=anatomy.pdf')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('text=(Page 1)')).toBeVisible()
+    await expect(page.locator('text=90% match')).toBeVisible()
+
+    await expect(page.locator('text=physiology.pdf')).toBeVisible()
+    await expect(page.locator('text=(Page 3)')).toBeVisible()
+    await expect(page.locator('text=75% match')).toBeVisible()
   })
 
   test('input re-enables after streaming completes', async ({ page }) => {
