@@ -12,22 +12,21 @@ export interface MessageWithReferences {
 }
 
 export default function Messages({ messages }: { messages: MessageWithReferences[] }) {
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const lastUserMessageRef = useRef<HTMLDivElement | null>(null);
+  const userMessageCount = messages.filter(m => m.role === "user").length;
+  const lastUserIndex = messages.reduce((last, msg, i) => msg.role === "user" ? i : last, -1);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    lastUserMessageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [userMessageCount]);
 
   return (
     <div className="space-y-4 mb-4">
       {messages.map((msg, index) => (
         <div
           key={index}
-          className={"p-4 rounded-lg bg-white dark:bg-black text-gray-950 dark:text-white border border-gray-400 dark:border-gray-600"}
+          ref={index === lastUserIndex ? lastUserMessageRef : null}
+          className={"scroll-mt-[68px] p-4 rounded-lg bg-white dark:bg-black text-gray-950 dark:text-white border border-gray-400 dark:border-gray-600"}
         >
           <div className="flex items-start gap-3">
             <div className="text-lg">
@@ -46,7 +45,6 @@ export default function Messages({ messages }: { messages: MessageWithReferences
           )}
         </div>
       ))}
-      <div ref={messagesEndRef} />
     </div>
   );
 }
