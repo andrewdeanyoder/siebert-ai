@@ -34,7 +34,7 @@ This file lists completed and upcoming units of work.
     k. [x] delete the error route
     l. [ ] refactor the query params redirect to use cookies or server-side state management instead
 20. [x] Debug errors for why we can't use a better model
-21. [ ] spike basic TTS
+21. [x] spike basic TTS
     a. [x] basic implementation through browser api
     b. [x] add a small dropdown menu component inside the chat component, underneath the input field that allows the user to select TTS method - either Vosk (untrained) or Browser VoiceRecognition; when the user selects Vosk, nothing should happen for now.
     c. [x] When the user selects Vosk menu, use Vosk voice recognition hook to listen and transcribe to the text area
@@ -43,15 +43,15 @@ This file lists completed and upcoming units of work.
         ii. [x] add a loading spinner and error state
         iii. [x] make sure I handle tear down in all use cases
         iv. [x] give the option to choose medical
-    e. [ ] make the text area expand as interim results come in
-23. [ ] Flesh out Chat.microphone.test.tsx — currently only covers dropdown rendering; needs tests for: starting/stopping recording, transcript appended to input, error state, loading spinner visibility
-24. [ ] Add test to Chat.keyboard.test.tsx asserting that pressing Enter while isLoading is true does not call submitMessages
-22. [ ] productionize chosen TTS method
-    b. [ ] help me understand all implementations in detail
+    e. [x] make the text area expand as interim results come in
+22. [ ] Flesh out Chat.microphone.test.tsx — currently only covers dropdown rendering; needs tests for: starting/stopping recording, transcript appended to input, error state, loading spinner visibility
+23. [ ] Add test to Chat.keyboard.test.tsx asserting that pressing Enter while isLoading is true does not call submitMessages
+24. [ ] productionize chosen TTS method
+    b. [x] help me understand all implementations in detail
     c. [ ] discard code and write failing unit tests
     e. [ ] have interim results come in more frequently?
 25. [ ] Cancel in-flight stream on navigation/unmount: add AbortController to submitMessages and signal it from a Chat.tsx useEffect cleanup
-22. [ ] Update e2e tests to cover chat functionality
+26. [ ] Update e2e tests to cover chat functionality
     a. [ ] Actually type messages into the input field
     b. [ ] Submit messages to test the chat functionality
     c. [ ] Verify message sending/receiving
