@@ -24,7 +24,6 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 ## Development Workflow
 - CRITICAL: Always work in small increments. Implement the smallest change needed to complete a task. NO EXCEPTIONS.
 - PREOPTIMIZATION FORBIDDEN: Do not add complexity, variants, or "future-proofing" features. Build exactly what is requested, nothing more.
-- Reference `docs/instructions.md` before starting a new task.
 - Follow test driven development. Before writing production code, write failing tests first.
 - When writing production code, attempt to make the failing tests pass. Do NOT attempt to modify the test to make it pass.
 - After completing each unit of work, run the lint, typecheck, build and test commands and attempt to fix any failures.
@@ -40,11 +39,29 @@ This is an AI-powered anatomy and physiology tutoring application built with Nex
 - Prefer destructuring props in component parameters
 - Always run `pnpm types` to verify TypeScript types before committing changes
 
-## Testing Guidelines
+## Planning Guidelines
+
+When entering plan mode for any feature or fix:
+
+### Test Strategy Priority
+Follow TDD. When deciding what tests to write, use this priority order:
+1. **Integration tests** should be used for most tests. Avoid internal mocks, only mock at the boundary of 3rd party libraries or at network calls. If the behavior under test depends on both UI and Server logic, consider implementing an E2E test instead.
+2. **E2E tests** (Playwright). Use to test main workflows, or when the behavior under test depends on both UI and Server behavior. If possible, `page.route()` to mock backend API calls.
+3. **Unit tests** only as a last resort, or for pure utility functions with no meaningful integration surface.
+
+When choosing a test level, explain in the plan *why* a test in a higher priority was ruled out.
+
+### Pseudocode
+Include pseudocode for non-trivial logic — especially for new data flows, state management changes, and stream parsing. Pseudocode should be close enough to the real implementation to be directly translatable.
+
+### Plan Output
+Save plans as `.md` files to `.claude/plans/` in the project root (not `~/.claude/plans/`).
+
+### Test Philosophy
+- Test user-visible behavior, not implementation details.
+- Prefer fewer, broader tests over many narrow ones.
+- Minimize mocks; use real implementations where possible. When mocking is necessary (e.g., external APIs, LLMs), mock at the network boundary (e.g., `page.route()`, `vi.stubGlobal('fetch', ...)`), not at the module level.
 - Reference `docs/testing-strategy.md` before writing or modifying tests
-- **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass; Important: if the tests do not run, do not continue with development!
-- **Test User Behavior, Not Implementation**: Test what users can do/see, not internal functions
-- **Prefer Integration Tests**: Test components and features working together, not isolated units
 
 ## File Organization
 - Keep components in `src/components/`
