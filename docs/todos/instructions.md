@@ -50,6 +50,7 @@ This file lists completed and upcoming units of work.
     b. [ ] help me understand all implementations in detail
     c. [ ] discard code and write failing unit tests
     e. [ ] have interim results come in more frequently?
+25. [ ] Cancel in-flight stream on navigation/unmount: add AbortController to submitMessages and signal it from a Chat.tsx useEffect cleanup
 22. [ ] Update e2e tests to cover chat functionality
     a. [ ] Actually type messages into the input field
     b. [ ] Submit messages to test the chat functionality
