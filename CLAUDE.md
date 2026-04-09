@@ -61,7 +61,11 @@ Save plans as `.md` files to `.claude/plans/` in the project root (not `~/.claud
 - Test user-visible behavior, not implementation details.
 - Prefer fewer, broader tests over many narrow ones.
 - Minimize mocks; use real implementations where possible. When mocking is necessary (e.g., external APIs, LLMs), mock at the network boundary (e.g., `page.route()`, `vi.stubGlobal('fetch', ...)`), not at the module level.
-- Reference `docs/testing-strategy.md` before writing or modifying tests
+
+### Test File Organization
+- Unit tests: `tests/unit/ComponentName.test.tsx`
+- Integration tests: `tests/integration/FeatureName.test.ts`
+- E2E tests: `tests/e2e/UserWorkflow.spec.ts`
 
 ## File Organization
 - Keep components in `src/components/`
