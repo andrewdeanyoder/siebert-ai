@@ -7,6 +7,7 @@ export default async function submitMessages(
   onChunk: (text: string) => void,
   onComplete: (references: Reference[], ragError?: RagError) => void
 ): Promise<void> {
+  // todo: add AbortController to cancel the fetch and reader if the component unmounts or user navigates away
   try {
     const response = await fetch("/api/chat", {
       method: "POST",

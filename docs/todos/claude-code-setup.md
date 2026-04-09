@@ -16,12 +16,12 @@ b. [x] Review and convert cursor-specific settings to Claude format
 
 ### 3. Custom Global Instructions
 a. [x] Set up custom global instructions in Claude Code settings
-b. [ ] Define preferences for coding style, and response format
-c. [ ] Configure how Claude should interact and make decisions
+b. [x] Define preferences for coding style, and response format
+c. [x] Configure how Claude should interact and make decisions
 
 ### 4. Skills and Prompts Setup
 a. [x] Create `.claude/skills/` directory for custom commands
-b. [ ] Create `.claude/prompts/` directory for reusable prompt templates
+b. [x] Create `.claude/prompts/` directory for reusable prompt templates
 c. [ ] Look for examples online to populate with project-specific workflows
 d. [ ] Create project-specific commands (like `/test-auth` or `/run-e2e`)
 e. [ ] Install GitHub CLI (`brew install gh && gh auth login`) for PR/issue commands
@@ -54,7 +54,7 @@ a. [ ] Pin frequently accessed directories
 b. [ ] Set default paths for tests, components, etc.
 
 ### 10. Permission Presets
-a. [ ] Pre-approve common bash commands (npm, git, test runners)
+a. [x] Pre-approve common bash commands (npm, git, test runners)
 b. [ ] Set file write permissions for src/test directories
 
 ### 11. Model Selection

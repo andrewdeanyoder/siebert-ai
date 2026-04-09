@@ -1,29 +1,18 @@
-# Testing Strategy
+---
+paths:
+  - "tests/**"
+---
 
-## Core Principles
-
-- **Follow Test-Driven Development (TDD)**: Write failing tests first, then implement code to make them pass. Important: if the tests do not run, do not continue with development!
-- **Test User Behavior, Not Implementation**: Test what users can do/see, not internal functions
-- **Prefer Integration Tests**: Test components and features working together, not isolated units
-- **Minimize Mocks**: Only mock external dependencies (APIs, file system), not internal logic
-- **Use Arrange-Act-Assert Pattern**: Structure tests as setup → action → verification
-- **Coverage Focus**: Aim for meaningful coverage of user workflows, not 100% line coverage
-
-## Test File Organization
-
-- Unit tests: `tests/unit/ComponentName.test.tsx`
-- Integration tests: `tests/integration/FeatureName.test.ts`
-- E2E tests: `tests/e2e/UserWorkflow.spec.ts`
-
-## Test Naming
-
-Use descriptive names like "should display error when API fails" not "test1"
+# Testing Rules
 
 ## Selectors
 
 Prefer semantic elements (button, input, etc.) and aria-role attributes over CSS classes. Fall back to data-testid for complex selectors.
 
-## Test Template on a React Component (Arrange-Act-Assert)
+## Test Case Naming
+Use descriptive names like "should display error when API fails" not "test1".
+
+## Test Template: React Component (Arrange-Act-Assert)
 
 ```tsx
 import { render, screen, waitFor } from '@testing-library/react'
@@ -33,10 +22,8 @@ import { MyComponent } from '@/components/MyComponent'
 
 describe('MyComponent', () => {
   beforeEach(() => {
-    // any setup used by all tests can be setup here
-    global.fetch = vi.fn();
+    global.fetch = vi.fn()
     const user = userEvent.setup()
-
   })
 
   afterEach(vi.restoreAllMocks)
@@ -64,7 +51,7 @@ describe('MyComponent', () => {
 })
 ```
 
-## Test Template for API Route (with upstream API and database)
+## Test Template: API Route (with upstream API and database)
 
 ```tsx
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -82,12 +69,10 @@ describe('POST /api/chat', () => {
   const mockFrom = vi.fn().mockReturnValue({ insert: mockInsert })
 
   beforeEach(() => {
-    // Mock AI SDK
     vi.mocked(generateText).mockResolvedValue({
       text: 'Hello!',
     } as any)
 
-    // Mock database client
     vi.mocked(createClient).mockReturnValue({
       from: mockFrom,
     } as any)
@@ -109,15 +94,11 @@ describe('POST /api/chat', () => {
     // Assert
     expect(response.status).toBe(200)
     expect(data.content).toBe('Hello!')
-
-    // Verify AI SDK was called correctly
     expect(generateText).toHaveBeenCalledWith(
       expect.objectContaining({
         messages: [{ role: 'user', content: 'Hi' }],
       })
     )
-
-    // Verify database was called correctly
     expect(mockFrom).toHaveBeenCalledWith('chat_history')
     expect(mockInsert).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -131,21 +112,21 @@ describe('POST /api/chat', () => {
 
 ## Tools
 
+Use `@testing-library/user-event` for all user interactions.
+
 ### Vitest (Unit/Integration)
-- **Config**: Uses defaults (no vitest.config.ts)
-- **Libraries**: @testing-library/react, @testing-library/jest-dom, jsdom
-- **Commands**:
-  - `pnpm test` — watch mode
-  - `pnpm test:run` — single run
-  - `pnpm test:ui` — interactive UI
-  - `pnpm test:coverage` — with coverage report
+- Config: uses defaults (no vitest.config.ts)
+- Libraries: @testing-library/react, @testing-library/jest-dom, jsdom, @testing-library/user-event
+- `pnpm test` — watch mode
+- `pnpm test:run` — single run
+- `pnpm test:ui` — interactive UI
+- `pnpm test:coverage` — with coverage report
 
 ### Playwright (E2E)
-- **Config**: `playwright.config.ts`
-- **Test directory**: `tests/e2e/`
-- **Browsers**: Chromium, Firefox, WebKit
-- **Base URL**: http://localhost:3000
-- **Commands**:
-  - `pnpm test:e2e` — run all E2E tests
-  - `pnpm test:e2e:ui` — interactive UI mode
-  - `pnpm test:e2e:install` — install browsers
+- Config: `playwright.config.ts`
+- Test directory: `tests/e2e/`
+- Browsers: Chromium, Firefox, WebKit
+- Base URL: http://localhost:3000
+- `pnpm test:e2e` — run all E2E tests
+- `pnpm test:e2e:ui` — interactive UI mode
+- `pnpm test:e2e:install` — install browsers
